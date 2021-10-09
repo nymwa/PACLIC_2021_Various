@@ -1,0 +1,244 @@
+\documentclass[11pt]{article}
+\usepackage{paclic35}
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{url}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\setlength\titlebox{6.5cm}    % Expanding the titlebox
+
+\usepackage{natbib}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{bm}
+\usepackage{graphics}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage[cmtip,all]{xy}
+\usepackage{hyperref}
+\definecolor{darkblue}{rgb}{0, 0, 0.5}
+
+\usepackage{tikz}
+\usetikzlibrary{automata}
+\usetikzlibrary{arrows}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{positioning}
+\usetikzlibrary{intersections, calc}
+\usetikzlibrary{decorations}
+\usetikzlibrary{decorations.markings}
+\usetikzlibrary{decorations.pathreplacing,angles,quotes}
+\usetikzlibrary{fit}
+\usetikzlibrary{math}
+\usetikzlibrary{shapes}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+\usepackage{bchart}
+
+\begin{document}
+
+\appendix
+
+\section{Integration of Our Method and RTT}
+
+\begin{figure}[t]
+	\centering
+	\begin{tikzpicture}[
+			>=latex,
+			font=\sffamily,
+			scale=0.7,
+			transform shape]
+		\node at (0, 0) {\textcolor{blue}{$s$}};
+		\node[rectangle, text width=60, text height=10, rounded corners, draw=green, fill=green!20, outer sep=1mm] (de) at (3, 1) {};
+		\node[rectangle, text width=60, text height=10, rounded corners, draw=green, fill=green!20, outer sep=1mm] (fi) at (3, 2) {};
+		\node[rectangle, text width=60, text height=10, rounded corners, draw=green, fill=green!20, outer sep=1mm] (fr) at (3, 3) {};
+		\node[rectangle, text width=60, text height=10, rounded corners, draw=green, fill=green!20, outer sep=1mm] (lv) at (3, 4) {};
+		\node[rectangle, text width=50, text height=15, rounded corners, draw=green, fill=green!20, outer sep=1mm] (rule) at (6.7, 0) {};
+		\node at (6.7, 0.2) {rule-based};
+		\node at (6.7, -0.2) {AEG};
+		\node at (3, 1) {En$\to$De$\to$En};
+		\node at (3, 2) {En$\to$Fi$\to$En};
+		\node at (3, 3) {En$\to$Fr$\to$En};
+		\node at (3, 4) {En$\to$Lv$\to$En};
+		\node at (2, 0.2) {$1-p$};
+		\node at (1.2, 0.95) {$\frac{p}{4}$};
+		\node at (1.2, 1.60) {$\frac{p}{4}$};
+		\node at (1.2, 2.25) {$\frac{p}{4}$};
+		\node at (1.2, 2.95) {$\frac{p}{4}$};
+		\draw[->] (0.2, 0) -- (5.65, 0);
+		\draw[->] (0.2, 0) -- (de.west);
+		\draw[->] (0.2, 0) -- (fi.west);
+		\draw[->] (0.2, 0) -- (fr.west);
+		\draw[->] (0.2, 0) -- (lv.west);
+		\draw[->] (de.east) -- (5.65, 0);
+		\draw[->] (fi.east) -- (5.65, 0);
+		\draw[->] (fr.east) -- (5.65, 0);
+		\draw[->] (lv.east) -- (5.65, 0);
+		\draw[->] (rule.east) -- (8.3, 0);
+		\node at (8.5, 0) {\textcolor{red}{$s'$}};
+		\node at (0, -0.5) {\textcolor{blue}{corrected}};
+		\node at (8.5, -0.5) {\textcolor{red}{erronous}};
+	\end{tikzpicture}
+	\caption{Integration of Our Method and RTT}
+	\label{fig:comb}
+\end{figure}
+
+\begin{table}[t]
+	\scriptsize
+	\centering
+	\tabcolsep 4pt
+	\begin{tabular}{lccc}
+		\hline
+		$p$
+		& \hspace{-1em}{$\def\arraystretch{0.5}\begin{array}{c}\vspace{-0.5em}\\\text{BEA-19}\\\text{test}\\\end{array}$}\hspace{-1em}
+		& \hspace{-1em}{$\def\arraystretch{0.5}\begin{array}{c}\vspace{-0.5em}\\\text{CoNLL}\\\text{14}\\\end{array}$}\hspace{-1em}
+		& \hspace{-1em}{$\def\arraystretch{0.5}\begin{array}{c}\vspace{-0.5em}\\\text{JFLEG}\\\text{test}\\\end{array}$}\hspace{-1em}
+		\\ \hline
+		0.0
+		& 67.32 / 69.42
+		& 60.60 / 62.25
+		& 60.12 / 60.69 \\
+		0.1
+		& 67.52 / 69.28
+		& 60.73 / 62.78
+		& 60.21 / 60.84 \\
+		0.2
+		& 67.35 / \textbf{69.83}
+		& 60.58 / 62.69
+		& 60.19 / 60.69 \\
+		0.3
+		& 66.60 / 68.58
+		& 60.37 / 61.78
+		& \textbf{60.38} / \textbf{60.91} \\
+		0.4
+		& \textbf{68.00} / 69.76
+		& 60.48 / 62.13
+		& 59.90 / 60.46 \\
+		0.5
+		& 67.92 / 69.71
+		& 60.55 / 62.02
+		& 60.15 / 60.74 \\
+		0.6
+		& 67.28 / 69.02
+		& 60.75 / 61.65
+		& 60.20 / 60.60 \\
+		0.7
+		& 67.80 / 69.38
+		& \textbf{61.29} / \textbf{63.47}
+		& 60.26 / 60.75 \\
+		0.8
+		& 67.94 / 69.53
+		& 60.22 / 61.81
+		& 60.32 / 60.74 \\
+		0.9
+		& 67.09 / 69.25
+		& 60.49 / 62.95
+		& 60.04 / 60.60 \\
+		1.0
+		& 67.65 / 69.08
+		& 60.63 / 61.44
+		& 60.21 / 60.57 \\
+		\hline
+	\end{tabular}
+	\caption{Integration of our method and RTT.}
+	\label{tab:integrate}
+\end{table}
+
+We further investigate if combination of our method and RTT is beneficial.
+We integrate them by applying RTT at the probability of $p$, in which RTT'ed sentence is selected with an equal probability, then conducting our method.
+Figure~\ref{fig:comb} shows the integrated procedure.
+
+Table~\ref{tab:integrate} shows the results.
+The optimal $p$ varies for each evaluation dataset, and it is difficult to say if the integration is beneficial.
+There might be a good method to combine our method and MT-based methods.
+We plan to research this in future work.
+
+\section{Effectiveness of BPE-dropout}
+
+\begin{table}[t]
+	\scriptsize
+	\centering
+	\tabcolsep 4pt
+	\begin{tabular}{lccc}
+		\hline
+		$p$
+		& \hspace{-1em}{$\def\arraystretch{0.5}\begin{array}{c}\vspace{-0.5em}\\\text{BEA-19}\\\text{test}\\\end{array}$}\hspace{-1em}
+		& \hspace{-1em}{$\def\arraystretch{0.5}\begin{array}{c}\vspace{-0.5em}\\\text{CoNLL}\\\text{14}\\\end{array}$}\hspace{-1em}
+		& \hspace{-1em}{$\def\arraystretch{0.5}\begin{array}{c}\vspace{-0.5em}\\\text{JFLEG}\\\text{test}\\\end{array}$}\hspace{-1em}
+		\\ \hline
+		0.0
+		& 55.21 / 61.21
+		& 49.68 / 53.45
+		& 53.73 / 54.26 \\
+		0.05
+		& 58.87 / \textbf{63.56}
+		& 53.26 / 56.51
+		& 57.19 / 57.78 \\
+		0.1
+		& \textbf{59.09} / \textbf{63.56}
+		& \textbf{54.03} / \textbf{56.79}
+		& \textbf{57.33} / \textbf{58.15} \\
+		0.15
+		& 58.62 / 63.27
+		& 53.31 / 56.36
+		& 57.25 / 57.73 \\
+		0.20
+		& 57.59 / 62.60
+		& 53.54 / 56.42
+		& 57.24 / 57.82 \\
+		\hline
+	\end{tabular}
+	\caption{The effect of BPE-dropout for target-only settings.}
+	\label{tab:drop1}
+\end{table}
+
+\begin{table}[t]
+	\scriptsize
+	\centering
+	\tabcolsep 4pt
+	\begin{tabular}{lccc}
+		\hline
+		$p$
+		& \hspace{-1em}{$\def\arraystretch{0.5}\begin{array}{c}\vspace{-0.5em}\\\text{BEA-19}\\\text{test}\\\end{array}$}\hspace{-1em}
+		& \hspace{-1em}{$\def\arraystretch{0.5}\begin{array}{c}\vspace{-0.5em}\\\text{CoNLL}\\\text{14}\\\end{array}$}\hspace{-1em}
+		& \hspace{-1em}{$\def\arraystretch{0.5}\begin{array}{c}\vspace{-0.5em}\\\text{JFLEG}\\\text{test}\\\end{array}$}\hspace{-1em}
+		\\ \hline
+		0.0
+		& 66.51 / 69.34
+		& 60.36 / \textbf{63.14}
+		& 59.55 / 60.04 \\
+		0.05
+		& 67.19 / \textbf{70.32}
+		& 59.68 / 62.73
+		& 60.41 / \textbf{61.03} \\
+		0.1
+		& \textbf{67.32} / 69.42
+		& \textbf{60.60} / 62.25
+		& 60.12 / 60.69 \\
+		0.15
+		& 66.90 / 69.26
+		& 60.53 / 61.97
+		& 60.31 / 60.71 \\
+		0.20
+		& 66.96 / 69.34
+		& 60.32 / 62.28
+		& \textbf{60.45} / 60.95 \\
+		\hline
+	\end{tabular}
+	\caption{The effect of BPE-dropout for artificial+target settings.}
+	\label{tab:drop2}
+\end{table}
+
+All the experiments in our paper use BPE-dropout of $p=0.1$, which is recommended in the original paper.
+We investigate the effectiveness of subword regularization with changing $p$.
+
+Table~\ref{tab:drop1} shows the result for baseline models.
+The optimal $p$ is $0.1$.
+BPE-dropout improves performance as subword reguralization.
+
+Table~\ref{tab:drop2} shows the result for artificial+target settings using 16M augmented data.
+BPE-dropout applies to both pre-training and fine-tuning data at the same dropout probability.
+The optimal $p$ varies for each evaluation dataset.
+Furthermore, we can observe that BPE-dropout improves even pre-trained and fine-tuned models in BEA-19 test and JFLEG test dataset.
+
+\end{document}

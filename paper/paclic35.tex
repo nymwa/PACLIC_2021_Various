@@ -1,0 +1,1036 @@
+%
+% File paclic35.tex
+%
+% Contact: Hongzhi Xu (hxu@shisu.edu.cn)
+%%
+%% Based on the style files for ACL2012 by Maggie Li and Michael White,
+%% which in turn is based on
+%% Based on the style files for ACL2008 by Joakim Nivre and Noah Smith
+%% and that of ACL2010 by Jing-Shin Chang and Philipp Koehn
+
+
+\documentclass[11pt]{article}
+\usepackage{paclic35}
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{url}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\setlength\titlebox{6.5cm}    % Expanding the titlebox
+
+% ----->
+\usepackage{natbib}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{bm}
+\usepackage{graphics}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage[cmtip,all]{xy}
+\usepackage{hyperref}
+\definecolor{darkblue}{rgb}{0, 0, 0.5}
+% \hypersetup{colorlinks=true,citecolor=darkblue, linkcolor=darkblue, urlcolor=darkblue} % If you want to add color to citation or link, you remove this commentout.
+
+% tikz
+\usepackage{tikz}
+\usetikzlibrary{automata}
+\usetikzlibrary{arrows}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{positioning}
+\usetikzlibrary{intersections, calc}
+\usetikzlibrary{decorations}
+\usetikzlibrary{decorations.markings}
+\usetikzlibrary{decorations.pathreplacing,angles,quotes}
+\usetikzlibrary{fit}
+\usetikzlibrary{math}
+\usetikzlibrary{shapes}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+\usepackage{bchart}
+% -----<
+
+
+\title{Various Errors Improve Neural Grammatical Error Correction}
+\author{
+    Shota Koyama\textsuperscript{1,2},
+    Hiroya Takamura\textsuperscript{1,2},
+    Naoaki Okazaki\textsuperscript{1,2} \\
+        \\
+    \textsuperscript{1}Tokyo Institute of Technology \\
+    \textsuperscript{2}National Institute of Advanced Industrial Science and Technology \\
+    \texttt{shota.koyama@nlp.c.titech.ac.jp} \\
+    \texttt{takamura.hiroya@aist.go.jp} \\
+    \texttt{okazaki@c.titech.ac.jp}}
+\date{}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+    The lack of parallel data is an obstacle in data-driven grammatical error correction.
+    Recently, researchers have addressed this problem by exploring data augmentation methods.
+    A number of studies have focused on improving the diversity of errors in generated data.
+    To investigate the importance of error diversity and its impact on performance improvements,
+    we designed and integrated 188 modules to generate token-level or span-level errors.
+    Experimental results demonstrate that
+    the diversity of errors is crucial to performance improvements.
+    The presented approach performs better than the baseline of round-trip translation, a purely data-driven approach.
+    Furthermore, we report that a larger monolingual corpus does not always result in better performance.
+\end{abstract}
+
+\section{Introduction}
+\label{sec:introduction}
+
+Grammatical error correction~(GEC) is an important NLP application that automatically corrects mistakes in text, and can assist language learners in writing text.
+Typically, GEC is treated as data-driven machine translation~(MT), where an erroneous sentence is `translated' into a correct one~\citep{brockett-etal-2006-correcting}.
+Sequence-to-sequence models~\citep{NIPS2014_a14ac55a}, which were originally proposed for MT, have also achieved excellent performance in GEC~\citep{junczys-dowmunt-etal-2018-approaching}.
+
+There are a number of publicly available datasets for GEC.
+The Lang-8 corpus~\citep{mizumoto-etal-2012-effect} is the largest among them, containing about one million sentence pairs.
+However, the amount of data is still insufficient for training high-quality neural machine translation~(NMT) models.
+One promising way to address this issue is by generating additional erroneous data by adding artificial errors to grammatical sentences.
+Therefore, various state-of-the-art studies have developed the GEC-specific data augmentation methods
+in their `pre-training and fine-tuning' paradigm~\citep{lichtarge-etal-2019-corpora,grundkiewicz-etal-2019-neural,kiyono-etal-2019-empirical}.
+
+Many studies aim at increasing the diversity in error types in augmented data, such that the model can handle a wide range of errors.
+\citet{wan-etal-2020-improving} presented a data augmentation method that injects noises to hidden-state representations based on ERRANT error types~\citep{bryant-etal-2017-automatic}.
+\citet{stahlberg-kumar-2021-synthetic} used error generation models, controlling types of generated errors.
+
+However, there are two issues that need to be discussed on the error diversity in augmented data.
+First, we are not certain of performance changes when error types vary.
+Previous studies did not analyze the contributions of diversity in error types due to its lack of explicit control in augmented data.
+Second, we are not certain of the performance of other important factors for improving the usefulness of artificial error data other than the variety of error types;
+for example, the training epochs and the size of the monolingual corpus for data augmentation.
+
+In order to address these issues, we explore a rule-based approach for data augmentation in the GEC task.
+Although we are uncertain whether a purely data-driven method for data augmentation~(for example, back-translation) actually generates diverse errors,
+a rule-based approach allows explicit control of error types.
+We can evaluate the impact of error diversity by changing the combination of error-generating modules.
+
+In this paper, we first classify errors in English text into five categories to design a wide range of modules for error generation.
+Next, we propose a framework for integrating the modules, in order to build artificial data with various errors. 
+We conducted experiments to examine the impact of error diversity in the generated erroneous data.
+As a result, we verified that sufficient error type diversity in augmented data is important for better performance improvement.
+In addition to error types, we show that generating artificial data at all epochs, not only at once,
+and performing sufficient iterations in pre-training improve the performance even without using large monolingual corpora.
+Furthermore, our method achieves better performance than the baseline of round-trip translation,
+one of the state-of-the-art methods for data augmentation.
+
+\section{Related Work}
+\label{sec:related}
+
+\subsection{GEC as MT}
+
+After the notable successes in machine translation, the paradigm of NMT has been widespread in GEC since \citet{yuan-briscoe-2016-grammatical}.
+Moreover, among a variety of sequence-to-sequence models, Transformer~\citep{NIPS2017_3f5ee243} has also been popular in neural GEC~\citep{junczys-dowmunt-etal-2018-approaching},
+which has advantages in translation quality and parallel computing.
+
+\subsection{Data Augmentation and Pre-Training}
+
+To make use of NMT in GEC, we need error annotated learner corpora as supervision data for NMT models.
+However, the size of the available supervision data in GEC is much smaller than that of NMT~\citep{junczys-dowmunt-etal-2018-approaching}.
+Since preparing human-annotated GEC data is time-consuming and expensive, researchers have explored data augmentation in GEC.
+
+\citet{lichtarge-etal-2019-corpora} confirmed the effectiveness of pre-training an NMT model on large artificial data, and fine-tuning it on supervision data for GEC.
+As explained in Section~\ref{sec:introduction}, several researchers have explored data augmentation for GEC.
+Typically, data augmentation methods for GEC make artificial data by introducing errors into grammatical sentences.
+
+Many studies have shown that simple token-level perturbations are effective for data augmentation for GEC.
+\citet{grundkiewicz-etal-2019-neural} used confusion sets obtained from a spell checker to generate artificial errors;
+their system was ranked first in the two tracks of the BEA-2019 shared task~\citep{bryant-etal-2019-bea}.
+\citet{choe-etal-2019-neural} used learner's error patterns and confusion sets, based on parts-of-speech,
+to create preposition and inflection errors, achieving the second-best result in the same shared task.
+
+Back-translation, where the model generates an erroneous sentence from the correct one, is an MT-based error generation method~\citep{rei-etal-2017-artificial}.
+Naive back-translation has a problem with the diversity of generated examples.
+To solve this problem, \citet{xie-etal-2018-noising} gave more diversity to erroneous sentences, adding noise into each hypothesis in the beam.
+\citet{kiyono-etal-2019-empirical} further studied the effectiveness of back-translation in large-scale data.
+\citet{stahlberg-kumar-2021-synthetic} used a Seq2Edits~\citep{stahlberg-kumar-2020-seq2edits} model for span-level back-translation.
+This method can control the distribution of error types in the augmented data.
+
+Round-trip translation~(RTT), in which a grammatical sentence is first translated into a bridge language and then translated back,
+is also an effective MT-based error generation method~\citep{lichtarge-etal-2019-corpora,lichtarge-etal-2020-data}.
+
+\section{Error Categories}
+
+We categorize errors in English text into five categories
+to decompose various errors
+and investigate the importance of error diversity.
+This categorization is helpful to build error-generation modules,
+since an appropriate error generation method differs for each category.
+Additionally, we review previous studies on data augmentation for GEC, related to this categorization.
+
+\paragraph{Function Word}
+Errors in function words include the misuse of prepositions and pronouns; for example, \textit{for} in ``I went \textit{for} (\textrightarrow to) Tokyo.''
+Errors in function words can be generated by word-level perturbations.
+\citet{izumi-etal-2003-automatic} proposed the first rule-based error generation by replacing or deleting articles.
+\citet{rozovskaya-roth-2010-generating} replaced prepositions following the error rate and patterns of non-native writers.
+
+\paragraph{Inflection}
+Inflection errors involve inflectional forms of adjectives, nouns, and verbs;
+for example, \textit{goed} in ``I \textit{goed}~(\textrightarrow went) to Tokyo.''
+Most inflection errors occur at word-level, although some occur at span-level (e.g., perfect tense).
+\citet{brockett-etal-2006-correcting} generated inflection errors in mass nouns using regular expressions.
+\citet{choe-etal-2019-neural} produced inflection errors of nouns and verbs.
+
+\paragraph{Lexical Choice}
+Lexical choice errors occur due to the misuses of synonyms or affixes;
+for example, \textit{lost} in ``I \textit{lost}~(\textrightarrow missed) my flight.''
+\citet{xu-etal-2019-erroneous} generated suffix errors~(e.g., \textit{arrive} \textrightarrow arrival) using confusion sets.
+
+\paragraph{Word Order}
+Word order errors are caused by incorrect placements of words and phrases in sentences;
+for example, ``I \textit{my flight missed}~(\textrightarrow missed my flight).''
+Word order errors can be generated by swapping the order of adjacent words~\citep{grundkiewicz-etal-2019-neural}.
+
+\paragraph{Writing System}
+Writing system errors include spelling, punctuation, compound, orthography, and case errors.
+For example, \textit{tu} in ``I went \textit{tu}~(\textrightarrow to) Tokyo.''
+\citet{grundkiewicz-etal-2019-neural} generated confusion sets of spelling errors using a spell checker.
+
+\section{Proposed Method}
+
+In this study, we designed 188 error-generation modules and a framework for integrating them into a data augmentation method for GEC.
+Table~\ref{fig:aeg} shows the number of modules by category.
+The category ``Others'' in the table includes modules on deleting frequent function words and punctuations, and predicting masked tokens.
+We first explain the details of the modules, followed by a method for integrating the modules.
+
+\subsection{Error Generation Module}
+
+\begin{table}[t]
+	\footnotesize
+	\fontsize{8.0pt}{9.0pt}\selectfont
+	\centering
+	\begin{tabular}{lr}
+		\hline
+		\multicolumn{1}{c}{Error category} & \multicolumn{1}{c}{\# Modules} \\
+		\hline
+		Function word 
+			& 154 \\
+		Inflection
+			& 5 \\
+		Lexical choice
+			& 2 \\
+		Word order
+			& 6 \\
+		Writing system
+			& 19 \\
+		Others
+			& 2 \\
+		\hline
+		Total
+			& 188 \\
+		\hline
+	\end{tabular}
+	\caption{Breakdown of error generation modules.}
+	\label{tab:egu}
+\end{table}
+
+The input sentence of our framework is tokenized with SpaCy v2.3\footnote{\url{https://spacy.io/}};
+each word token is tagged with a part-of-speech tag, a dependency tag, a lemma, and an IOB tag for the named entity.
+Error generation modules use the output of SpaCy to inject artificial errors.
+
+Modules for function word error are designed for each function word; therefore this group occupies the majority of the modules.
+They delete, replace, or insert tokens based on their conditions.
+For example, a module on the proposition \textit{than} deletes \textit{than} with a probability of 0.2,
+and replaces \textit{than} with \textit{to}, \textit{from}, \textit{over}, \textit{beyond} with a probability of 0.4, 0.2, 0.1, 0.1, respectively\footnote{
+	We set the replacing words and the probabilities manually.
+	We may obtain further improvements by searching better parameters.}.
+Some modules insert tokens.
+For example, an insertion module for articles and demonstratives inserts \textit{a}, \textit{an}, \textit{the}, \textit{this}, \textit{that}, \textit{these}, \textit{those}
+with a probability of 0.3, 0.3, 0.3, 0.025, 0.025, 0.025, 0.025, respectively, between two adjacent words if the preceding word is
+\texttt{VB}, \texttt{VBD}, \texttt{VBG}, \texttt{VBN}, \texttt{VBP}, \texttt{VBZ}, or \texttt{IN} in Penn Treebank definition,
+and if the subsequent word is \texttt{NN}, \texttt{NNS}, \texttt{JJ}, \texttt{JJN}, or \texttt{JJS}.
+The module inserts articles and demonstratives at the beginning of a sentence if its first word is \texttt{NN}, \texttt{NNS}, \texttt{JJ}, \texttt{JJN}, or \texttt{JJS}.
+
+The modules for inflection error change the inflectional form of adjectives, nouns, and verbs using \texttt{lemminflect}\footnote{\url{https://github.com/bjascob/LemmInflect}}.
+The other modules include the deletion of the passive auxiliary and replacement of \textit{to} in infinitive use with \textit{by} or \textit{for}.
+
+The modules for lexical choice error are for suffixes and synonyms.
+The suffix error module replaces a suffix with another using a manually defined suffix set.
+The synonym error module replaces a word with one of its synonyms using WordNet~\citep{miller1995wordnet}.
+
+The modules for word order error are divided into two parts.
+The former part of modules move words or spans by a distance sampled from their own normal distribution.
+The adverb word order module and the interrogative word order module move adverbs and interrogative words respectively.
+The module for prepositional phrase word order detects prepositional phrases and moves them.
+There is another special module that moves words regardless of its syntactic role.
+The latter part of modules swap the order of words in the detected spans.
+The adjective word order module detects consecutive adjectives and shuffles them.
+The ``A of B'' word order module detects the pattern of ``(noun phrase) of (noun phrase)'' and swaps the order of the two phrases.
+
+The modules for writing system errors are implemented in various styles.
+Punctuation error modules delete, insert or replace various punctuations.
+Case error modules convert the first letter of a word to lowercase or uppercase.
+The module applies to named entities at the span-level\footnote{
+	`\textit{long} Island' is easier to correct than `\textit{long island}', as an erroneous example of `Long Island'.
+	The module addresses this issue by span-level error generation.}.
+The orthography error module randomly deletes a space between words.
+A variant of this module inserts a space into words based on word frequency such that, for example, ``football'' is more likely to be split into ``foot ball'' than ``foo tball.''
+The spelling error module deletes, swaps, inserts, or replaces some characters in words.
+The number of perturbing characters is sampled from a geometric distribution.
+Characters to be inserted or replaced with are sampled from a pre-defined distribution computed by a feed-forward network with a context window of five characters.
+
+Due to space limitations, we cannot provide full explanations of the modules. Please refer to the implementation for details\footnote{
+	You can see the source code for our error-generating method and all our experiments in \url{https://github.com/nymwa/arteraro}.}.
+
+\subsection{Integrating Error-Generation Modules}
+
+We propose a framework to integrate the presented modules.
+Figure~\ref{fig:aeg} shows the outline of our framework.
+The framework consists of a stack of multiple error-generation modules, with the aim of generating diverse errors.
+Given a correct input sentence, it generates erroneous text artificially by applying error-generation modules one by one to the input.
+We manually determined the order for applying these modules, such that a subsequent module does not completely overwrite errors made by preceding modules.
+For example, the preposition error module precedes the spelling error modules since
+\mbox{``on $\overset{\text{prep.}}{\rightsquigarrow}$ for $\overset{\text{spell.}}{\rightsquigarrow}$ far''}
+is preferable to
+\mbox{``on $\overset{\text{spell.}}{\rightsquigarrow}$ onn $\overset{\text{prep.}}{\rightsquigarrow}$ for.''}\footnote{
+	Since a preposition error module refers to the original word to select an erroneous word,
+	it is impossible to produce errors that combine prepositional and spelling errors in this example.}
+
+An error-generation module is applied to each word or span detected by the module.
+Each error-generation module has its own beta distribution used for sampling a threshold for each sentence\footnote{
+	The parameters of the beta distributions are set manually.}.
+For each input word, an error-generation module checks its applicability, samples the probability from the uniform distribution for each word or span,
+and applies to it if the probability is smaller than the threshold sampled for the sentence.
+
+\begin{figure}[t]
+	\centering
+	\begin{tikzpicture}[
+		font=\sffamily,
+		scale=0.70,
+		transform shape]
+		\node[
+				rectangle,
+				text width=250,
+				text height=8,
+				rounded corners,
+				draw=blue,
+				fill=blue!20,
+				outer sep=3mm
+			] (s) at (4, 0) {};
+
+		\node[anchor=west] at (-0.5, 0) {grammatical sentence};
+		\foreach \x / \y in {0/ I, 1/ went, 2/ to, 3/Tokyo, 4/.}{
+			\node at (\x * 1 + 4, 0) {\small \y};}
+
+		\draw[-{Triangle[width=10pt,length=3pt]}, line width=3pt] (4, -0.4) -- (4, -0.7);
+
+		\node[
+				rectangle,
+				text width=250,
+				text height=35,
+				rounded corners,
+				draw=blue,
+				fill=blue!20,
+				outer sep=3mm
+			] (s) at (4, -1.5) {};
+		\node[anchor=west] at (-0.6, -1.0) {\small Module 1};
+		\node[anchor=west] at (1.2, -1.0) {\footnotesize  ``preposition \textit{to}''};
+		\node[
+				rectangle,
+				text width=100,
+				text height=20,
+				rounded corners,
+				draw=green,
+				fill=green!20,
+				outer sep=3mm
+			] (s) at (1.5, -1.7) {};
+		\node[
+				rectangle,
+				text width=6,
+				text height=4,
+				rounded corners,
+				draw=green,
+				fill=green!20,
+				outer sep=0mm
+			] (s) at (6.05, -1.0) {};
+		\node at (6.37, -0.85) {\tiny \textcolor{red}{OK}};
+		\foreach \x / \y in {0/ I, 1/ went, 2/ to, 3/Tokyo, 4/.}{
+			\node at (\x * 1 + 4, -1.0) {\small \y};}
+		\foreach \x / \y in {0/ I, 1/ went, 2/ \textcolor{red}{for}, 3/Tokyo, 4/.}{
+			\node at (\x * 1 + 4, -2.0) {\small \y};}
+		\node at (0.7, -1.4) {\scriptsize beta distribution};
+		\node at (0.7, -1.72) {\scriptsize $\mu$ = 0.05};
+		\node at (0.7, -2.02) {\scriptsize $\sigma$ = 0.05};
+		\node at (1.6, -1.87) {\scriptsize $\rightsquigarrow$};
+		\node at (2.5, -1.5) {\scriptsize threshold};
+		\node at (2.5, -1.87) {\scriptsize 0.2};
+		\draw[-{Triangle[width=3pt,length=3pt]}, line width=0.6pt] (6.05, -1.15) -- (6.05, -1.35);
+		\draw[-{Triangle[width=3pt,length=3pt]}, line width=0.6pt] (6.05, -1.65) -- (6.05, -1.85);
+		\draw[-{Triangle[width=2pt,length=2pt]}, line width=0.2pt] (2.75, -1.87) -- (5.0, -1.5);
+		\node at (5.25, -1.5) {\footnotesize 0.2};
+		\node at (5.65, -1.5) {\footnotesize $>$};
+		\node at (6.05, -1.5) {\footnotesize 0.1};
+		\draw[-{Triangle[width=2pt,length=2pt]}, line width=0.2pt] (6.6, -1.5) -- (6.3, -1.5);
+		\node at (7.3, -1.32) {\tiny sampled};
+		\node at (7.3, -1.5) {\tiny from uniform};
+		\node at (7.3, -1.68) {\tiny distribution};
+
+		\draw[-{Triangle[width=10pt,length=3pt]}, line width=3pt] (4, -2.4) -- (4, -2.7);
+
+		\node[
+				rectangle,
+				text width=250,
+				text height=35,
+				rounded corners,
+				draw=blue,
+				fill=blue!20,
+				outer sep=3mm
+			] (s) at (4, -3.5) {};
+		\node[anchor=west] at (-0.6, -3.0) {\small Module 2};
+		\node[anchor=west] at (0.95, -3.0) {\scriptsize  ``1st sng. subj. pron.''};
+		\node[
+				rectangle,
+				text width=100,
+				text height=20,
+				rounded corners,
+				draw=green,
+				fill=green!20,
+				outer sep=3mm
+			] (s) at (1.5, -3.7) {};
+			\node[
+				rectangle,
+				text width=4,
+				text height=4,
+				rounded corners,
+				draw=green,
+				fill=green!20,
+				outer sep=0mm
+			] (s) at (4.05, -3.0) {};
+			\node at (4.3, -2.87) {\tiny \textcolor{red}{OK}};
+			\foreach \x / \y in {0/ I, 1/ went, 2/ for, 3/Tokyo, 4/.}{
+				\node at (\x * 1 + 4, -3.0) {\small \y};}
+			\foreach \x / \y in {0/ I, 1/ went, 2/ for, 3/Tokyo, 4/.}{
+				\node at (\x * 1 + 4, -4.0) {\small \y};}
+
+			\node at (0.7, -3.4) {\scriptsize beta distribution};
+			\node at (0.7, -3.72) {\scriptsize $\mu$ = 0.03};
+			\node at (0.7, -4.02) {\scriptsize $\sigma$ = 0.03};
+			\node at (1.6, -3.87) {\scriptsize $\rightsquigarrow$};
+			\node at (2.5, -3.5) {\scriptsize threshold};
+			\node at (2.5, -3.87) {\scriptsize 0.05};
+			\draw[-{Triangle[width=3pt,length=3pt]}, line width=0.6pt] (4.05, -3.15) -- (4.05, -3.35);
+			\draw[-{Triangle[width=3pt,length=3pt]}, line width=0.6pt] (4.05, -3.65) -- (4.05, -3.85);
+			\node at (5.25, -1.5) {\footnotesize 0.2};
+			\node at (5.65, -1.5) {\footnotesize $>$};
+			\node[rotate=20] at (3.7, -3.7) {\footnotesize $\not >$};
+			\node at (4.05, -3.5) {\footnotesize 0.9};
+
+			\draw[-{Triangle[width=10pt,length=3pt]}, line width=3pt] (4, -4.35) -- (4, -4.6);
+			\node at (4, -4.65) [circle, fill, inner sep=0.5pt] {};
+			\node at (4, -4.75) [circle, fill, inner sep=0.5pt] {};
+			\node at (4, -4.85) [circle, fill, inner sep=0.5pt] {};
+			\node[anchor=west] at (4.35, -4.725) {Stacked modules};
+			\draw[-{Triangle[width=10pt,length=3pt]}, line width=3pt] (4, -4.9) -- (4, -5.15);
+			\node[
+				rectangle,
+				text width=250,
+				text height=8,
+				rounded corners,
+				draw=red,
+				fill=red!20,
+				outer sep=3mm
+			] (s) at (4, -5.5) {};
+
+			\node[anchor=west] at (-0.5, -5.5) {erroneous sentence};
+			\foreach \x / \y in {0/ I, 1/ went, 2/ for, 3/Tokyo, 4/.}{
+				\node at (\x * 1 + 4, -5.5) {\small \y};}
+	\end{tikzpicture}
+	\caption{The outline of our error generation framework.}
+	\label{fig:aeg}
+\end{figure}
+
+\section{Experimental Settings}
+
+\subsection{Training and Evaluation Dataset}
+
+We use the official datasets in Restricted Track in the BEA-2019 Shared Task~\citep{bryant-etal-2019-bea}\footnote{\url{https://www.cl.cam.ac.uk/research/nl/bea2019st/}},
+which consists of four training datasets with annotated errors:
+FCE train~\citep{yannakoudakis-etal-2011-new}, NUCLE~\citep{dahlmeier-etal-2013-building}, Lang-8~\citep{mizumoto-etal-2012-effect}, and W\&I train~\citep{bryant-etal-2019-bea}.
+We removed the identical source-target pairs in the Lang-8 corpus, and over-sampled the FCE train, NUCLE, and W\&I train datasets three times.
+
+Searching for hyperparameters on a validation set, we evaluate GEC models on:
+the test set of the BEA-2019 Shared Task, which is tuned for its valid set and ERRANT scorer~\citep{bryant-etal-2017-automatic};
+the test set of the CoNLL-2014 Shared Task~\citep{ng-etal-2014-conll},
+tuned for the CoNLL-2013 Shared Task~\citep{ng-etal-2013-conll} dataset and $\text{M}^2$ scorer~\citep{dahlmeier-ng-2012-better};
+the test set of FCE in the official datasets in the BEA-2019 Shared Task, tuned for its valid set and ERRANT scorer;
+and the test set of JFLEG~\citep{napoles-etal-2017-jfleg}, tuned for its valid set and GLEU scorer~\citep{napoles-etal-2015-ground}.
+
+As source text for data augmentation, we use monolingual corpora in the WMT 2020 news task\footnote{\url{http://www.statmt.org/wmt20/translation-task.html}}:
+News crawl 2015--2020, Europarl v10, and News Commentary v16.
+The total number of sentences in these corpora is ca. 163.6M.
+When we use smaller corpora, for example, ``16M sentences'', we sample 16M sentences from the 163.6M sentences.
+
+We preprocessed all the data by normalizing the punctuations and decomposable characters~(e.g., à).
+We apply BPE-dropout~\citep{provilkov-etal-2020-bpe} with the vocabulary size of 16,000 to all the training and evaluation data
+with a dropout probability of 0.1 for source sentences in training data and 0 for other data.
+
+\subsection{Model}
+
+In all experiments, we use the Transformer Big model~\citep{NIPS2017_3f5ee243} implemented in \texttt{fairseq} v0.10.2\footnote{\url{https://github.com/pytorch/fairseq}} to train GEC models.
+It has six Transformer blocks with 16-head self-attention layers and a hidden-vector size of 1,024.
+We use the GeLU activation function~\citep{hendrycks2016gelu} in feed-forward layers with a hidden-vector size of 4,096.
+We tie embeddings of the input layers of the encoder and the input and output layers of the decoder~\citep{press-wolf-2017-using}.
+We use a pre-norm, instead of a post-norm, for each Transformer layer for better convergence.
+We decode an output with a beam size of 12 and length normalization with a penalty of 0.6.
+We train five models for each experiment and report their average score and the score of ensemble generation.
+
+\subsection{Pre-Training and Fine-Tuning}
+
+We pre-train models using augmented data and fine-tune them using the target domain data. 
+We call this experiment ``artificial+target setting.''
+We apply the presented error-generation framework at each epoch.
+This means that the supervision data for pre-training are different at each epoch.
+We fine-tune models for 30 epochs in artificial+target settings.
+The number of pre-training epochs is different for each experiment.
+We call the experiment without pre-training ``target-only setting.''
+We train models for 40 epochs in target-only settings.
+
+\subsection{Training Settings}
+
+We use: the cross-entropy loss with label smoothing of 0.1;
+AdamW optimizer~\citep{DBLP:conf/iclr/LoshchilovH19} with \mbox{$(\beta_1, \beta_2) = (0.9, 0.999)$};
+a learning rate of 0.0015 for target-only settings and 0.001 for artificial+target settings;
+and a linear warm-up for the first 8k steps and inverted squared decay following the warm-up.
+The maximum length of the training sentence is 400 tokens.
+We use dropout for the attention and activation layers with a probability of 0.2, and other layers with that of 0.3.
+We apply a weight decay of 0.001 and gradient clipping of 1.0 for target-only settings and 0.3 for artificial+target settings.
+We set the max batch size as 4000 tokens.
+We accumulate gradients of 8 mini-batches for target-only settings and 128 for artificial+target settings.
+
+\section{Experimental Results}
+
+\subsection{Impact of the Diversity of Error Types}
+
+To examine the importance of the diversity in error types, we investigated GEC performance by changing the error variety in the artificial data used for pre-training.
+Table~\ref{tab:abl} shows the results on 16M pre-training for 10 epochs and fine-tuning.
+
+When we pre-train models using data without error generation ``No error (copy)''\footnote{
+	We apply gradient clipping of 0.1 for this setting to prevent divergence.},
+where the models are pre-trained for copying the monolingual data, the performance is worse than that of the model trained only with the target data, ``Target-only.''
+This result indicates that pre-training a model on erroneous data is necessary.
+The presented method ``All modules'' exhibits remarkable improvements over the target-only setting: 5.86, 5.46, and 2.54 points improvements~(with ensembling) on BEA-19, CoNLL 14, and JFLEG, respectively.
+
+Using only other modules for error generation, ``None (others only)''  shows a considerable performance gain over the target-only setting.
+This result implies that mask-prediction and deletion are excellent heuristics even without linguistic features.
+Adding one group of modules further improves the performance.
+In particular, adding the modules for writing system errors is effective.
+
+When we add four groups of modules, the results are almost identical to that of all modules, except for writing system modules.
+This result indicates that errors in the writing system play the most important role in the presented method.
+Although using all modules in error generation does not always achieve the best performance, we observe that pre-training on erroneous data of various types generally improves GEC performance.
+
+\begin{table}[t]
+	\scriptsize
+	\fontsize{7.5pt}{8.5pt}\selectfont
+	\centering
+	\tabcolsep 4pt
+	\begin{tabular}{lccc}
+		\hline
+		& \hspace{-1em}{$\def\arraystretch{0.5}\begin{array}{c}\vspace{-0.5em}\\\text{BEA-19}\\\text{test}\\\end{array}$}\hspace{-1em}
+		& \hspace{-1em}{$\def\arraystretch{0.5}\begin{array}{c}\vspace{-0.5em}\\\text{CoNLL}\\\text{14}\\\end{array}$}\hspace{-1em}
+		& \hspace{-1em}{$\def\arraystretch{0.5}\begin{array}{c}\vspace{-0.5em}\\\text{JFLEG}\\\text{test}\\\end{array}$}\hspace{-1em}
+		\\ \hline
+		Target-only
+		& 59.09 / 63.56
+		& 54.03 / 56.79
+		& 57.33 / 58.15
+		\\
+		\hline
+		\hline
+		\multicolumn{4}{l}{Pre-training + fine-tuning, pre-trained on:}
+		\\
+		\ No error (copy)
+		& 60.02 / 62.96
+		& 52.39 / 53.85
+		& 55.93 / 56.09
+		\\
+		\ All modules
+		& \underline{67.32} / \underline{69.42}
+		& \underline{60.60} / \underline{62.25}
+		& \textbf{60.12} / \underline{60.69}
+		\\
+		\hline
+		\multicolumn{4}{l}{Pre-training on errors from a specific group and others + fine-tuning}
+		\\
+		\ None (others only)
+		& 64.30 / 67.60
+		& 57.88 / 59.67
+		& 58.30 / 59.00
+		\\
+		\ Function word
+		& 65.79 / 68.42
+		& 58.95 / 62.14
+		& 58.58 / 58.89
+		\\
+		\ Inflection
+		& 64.26 / 67.80
+		& 59.53 / 61.44
+		& 58.74 / 59.23
+		\\
+		\ Lexical choice
+		& 64.91 / 67.28
+		& 58.56 / 60.87
+		& 58.68 / 59.13
+		\\
+		\ Word order
+		& 64.66 / 67.76
+		& 58.60 / 60.41
+		& 58.47 / 58.76
+		\\
+		\ Writing system
+		& 66.11 / 68.54
+		& 59.83 / 62.11
+		& 59.69 / 60.34
+		\\
+		\hline
+		\multicolumn{4}{l}{Pre-training on errors excluding a specific group + fine-tuning}
+		\\
+		\ - Function word
+		& 66.57 / 69.36
+		& 59.64 / 61.62
+		& 59.79 / 60.17
+		\\
+		\ - Inflection
+		& 67.03 / 69.00
+		& \textbf{60.80} / \textbf{62.66}
+		& 60.10 / \textbf{60.82}
+		\\
+		\ - Lexical choice
+		& 67.12 / \textbf{69.52}
+		& 60.47 / 61.84
+		& \textbf{60.12} / \textbf{60.81}
+		\\
+		\ - Word order
+		& \textbf{67.60} / \textbf{69.68}
+		& \textbf{61.28} / \textbf{63.69}
+		& \textbf{60.12} / 60.49
+		\\
+		\ - Writing system
+		& 65.79 / 68.36
+		& 60.10 / 61.62
+		& 59.28 / 59.70
+		\\
+		\hline
+	\end{tabular}
+	\caption{The effect of error diversity.
+		The left and right scores represent the average score of five models and the ensemble generation score, respectively.}
+	\label{tab:abl}
+\end{table}
+
+\subsection{Impact of the Corpus Size}
+
+\citet{kiyono-etal-2019-empirical} reported that the back-translation approach for artificial error generation benefits from the larger size of text data.
+Figure~\ref{fig:size} depicts the GEC performance pre-trained on artificial errors and fine-tuned on the target domain data,
+changing the size of the monolingual corpus from which the proposed method generates the artificial errors.
+The blue line presents the performance when we change the size of the monolingual corpus with the number of pre-training epochs fixed to 10.
+We can see that the size of the monolingual corpus matters, as reported in a previous study.
+
+However, in this experiment, we cannot distinguish whether the performance gain is caused by the increased size of monolingual corpora
+or by the increased total steps required to update the model parameters during pre-training.
+Thus, we conducted another experiment where the total number of pre-training steps was fixed, with monolingual corpus of different sizes.
+The red line in Figure~\ref{fig:size} shows the result.
+Even when we reduced the corpus size to 1M, we did not observe a severe performance drop unlike the blue line.
+This result suggests that the size of monolingual corpus for artificial data is not critical, and the number of total steps for updating the model parameters during pre-training is essential.
+Additionally, this result implies that the proposed method can train good GEC models for low-resource languages if error-generation modules are designed appropriately.
+
+\begin{figure}[t]
+	\centering
+	\small
+	\begin{tikzpicture}[scale=1.0,transform shape]
+		\begin{axis}[
+				ytick scale label code/.code={},
+				xmin=0,
+				ymin=61.8,
+				ymax=69.1,
+				xtick={1,2,4,8,16,32},
+				xticklabels={,,4M,8M,16M,32M},
+				width=7.0cm,
+				height=4.0cm,
+				grid=major,
+				ytick={62,64,66,68},
+				ylabel={BEA-19 test {\scriptsize ($\text{F}_{0.5}$)}},
+				xlabel={The size of monolingual corpus},
+				xlabel near ticks, xlabel shift={-2pt},
+				ylabel near ticks, ylabel shift={-2pt},
+				legend style={legend pos=south east}]
+			\addplot[
+					blue,
+					mark=*,
+					densely dashdotted,
+					very thick,
+					line width=1pt,
+					mark size=2pt,
+					mark options = {solid}
+					] coordinates {
+				(4,  62.12)
+				(8,  64.99)
+				(16, 67.32)
+				(32, 68.21)};
+			\addplot[red, mark=square*, line width=1pt, mark size=2pt] coordinates {
+				(1,  66.67)
+				(2,  67.43)
+				(4,  67.03)
+				(8,  67.42)
+				(16, 67.32)
+				(32, 67.99)};
+			\node at (axis cs: 3.0, 62.72) {\footnotesize 10};
+			\node at (axis cs: 7.0, 65.59) {\footnotesize 10};
+			\node at (axis cs: 15.0, 67.92) {\footnotesize 10};
+			\node at (axis cs: 30.5, 68.71) {\footnotesize 10};
+			\node at (axis cs: 1.5, 66.02) {\footnotesize 160};
+			\node at (axis cs: 2.0, 68.08) {\footnotesize 80};
+			\node at (axis cs: 5.0, 66.43) {\footnotesize 40};
+			\node at (axis cs: 7.0, 68.07) {\footnotesize 20};
+			\node at (axis cs: 33.0, 67.49) {\footnotesize 5};
+			\legend{Fixed \#epochs, Fixed \#steps}
+		\end{axis}
+	\end{tikzpicture}
+	\caption{The effect of varying corpus size and training epochs. The results are an average of five models.
+		The associated numbers indicate the training epochs.}
+	\label{fig:size}
+	\vspace{1em}
+	\centering
+	\small
+	\begin{tikzpicture}[scale=1.0,transform shape]
+		\begin{axis}[
+				ytick scale label code/.code={},
+				xmin=0,
+				xtick={1,2,4,8,16,32},
+				xticklabels={,,4M,8M,16M,32M},
+				width=7.0cm,
+				height=4.0cm,
+				grid=major,
+				ylabel={BEA-19 test {\scriptsize ($\text{F}_{0.5}$)}},
+				xlabel={The size of monolingual corpus},
+				xlabel near ticks, xlabel shift={-2pt},
+				ylabel near ticks, ylabel shift={-2pt},
+				legend style={
+					nodes={scale=0.8, transform shape},
+					legend pos=south east}]
+			\addplot[
+					blue,
+					mark=*,
+					densely dashdotted,
+					very thick,
+					line width=1pt,
+					mark size=2pt,
+					mark options = {solid}
+					] coordinates {
+				(1,  64.72)
+				(2,  65.59)
+				(4,  66.80)
+				(8,  66.94)
+				(16, 67.03)
+				(32, 67.16)};
+			\addplot[red, mark=square*, line width=1pt, mark size=2pt] coordinates {
+				(1,  66.67)
+				(2,  67.43)
+				(4,  67.03)
+				(8,  67.42)
+				(16, 67.32)
+				(32, 67.99)};
+			\node at (axis cs: 1.5, 66.32) {\footnotesize 160};
+			\node at (axis cs: 2.0, 67.83) {\footnotesize 80};
+			\node at (axis cs: 4.0, 67.43) {\footnotesize 40};
+			\node at (axis cs: 8.0, 67.82) {\footnotesize 20};
+			\node at (axis cs: 16.0, 67.72) {\footnotesize 10};
+			\node at (axis cs: 33.0, 67.69) {\footnotesize 5};
+			\node at (axis cs: 3.0, 64.62) {\footnotesize 160};
+			\node at (axis cs: 3.5, 65.39) {\footnotesize 80};
+			\node at (axis cs: 5.0, 66.50) {\footnotesize 40};
+			\node at (axis cs: 9.0, 66.64) {\footnotesize 20};
+			\node at (axis cs: 17.0, 66.73) {\footnotesize 10};
+			\node at (axis cs: 33.0, 66.86) {\footnotesize 5};
+			\legend{Generating at first only, Generating at every epoch}
+		\end{axis}
+	\end{tikzpicture}
+	\caption{The effect of generating artificial data at every epoch. The results are an average of five models.
+		The associated numbers indicate the training epochs.}
+	\label{fig:src}
+\end{figure}
+
+\subsection{Impact of Generating Artificial Data at Every Epoch}
+
+\begin{table*}[t]
+	\centering
+	\fontsize{7.0pt}{7.5pt}\selectfont
+	\tabcolsep 1.5pt
+	\begin{tabular}{@{\extracolsep{2.5pt}}l ccc ccc|c ccc|cccc|cc@{}}
+		\hline
+		& \multicolumn{6}{c}{BEA-19}
+		& \hspace{-2em}CoNLL-13\hspace{-2em}
+		& \multicolumn{3}{c}{CoNLL-14}
+		& \multicolumn{4}{c}{FCE}
+		& \multicolumn{2}{c}{JFLEG}
+		\\ \cline{2-7} \cline{8-8} \cline{9-11} \cline{12-15} \cline{16-17}
+		& \multicolumn{3}{c}{valid}
+		& \multicolumn{3}{c}{test}
+		& \hspace{-2em}(valid)\hspace{-2em}
+		& \multicolumn{3}{c}{(test)}
+		& \hspace{-2em}valid\hspace{-2em}
+		& \multicolumn{3}{c}{test}
+		& \hspace{-2em}valid\hspace{-2em}
+		& \hspace{-2em}test\hspace{-2em}
+		\\ \cline{2-4} \cline{5-7} \cline{8-8} \cline{9-11} \cline{12-12} \cline{13-15} \cline{16-16} \cline{17-17}
+		& P & R & \multicolumn{1}{c}{$\textrm{F}_{0.5}$}
+		& P & R & \multicolumn{1}{c}{$\textrm{F}_{0.5}$}
+		& $\textrm{F}_{0.5}$
+		& P & R & \multicolumn{1}{c}{$\textrm{F}_{0.5}$}
+		& $\textrm{F}_{0.5}$
+		& P & R & \multicolumn{1}{c}{$\textrm{F}_{0.5}$}
+		& \hspace{-1em}GLEU\hspace{-1em}
+		& \hspace{-1em}GLEU\hspace{-1em}
+		\\
+		\hline
+		\hline
+		% other researches \\
+		\citet{choe-etal-2019-neural}
+		& 63.54 & 31.48 & 52.79
+		& 76.19 & 50.25 & 69.06
+		& - & 74.76 & 34.05 & 60.33
+		& - & - & - & -
+		& - & - \\
+		\citet{grundkiewicz-etal-2019-neural}
+		& 59.1\phantom{0} & 36.8\phantom{0} & 53.00
+		& 72.28 & 60.12 & 69.47
+		& - & - & - & 64.16
+		& - & - & - & 55.81
+		& - & 61.22 \\
+		\citet{lichtarge-etal-2020-data}
+		& - & - & -
+		& 75.4\phantom{0} & 64.7\phantom{0} & 73.0\phantom{0}
+		& - & 74.7\phantom{0} & 46.9\phantom{0} & 66.8\phantom{0}
+		& - & - & - & -
+		& - & \textbf{64.9\phantom{0}} \\
+		\citet{wan-etal-2020-improving}
+		& - & - & -
+		& 72.6\phantom{0} & 61.3\phantom{0} & 70.0\phantom{0}
+		& - & 72.3\phantom{0} & 48.8\phantom{0} & 65.9\phantom{0}
+		& - & 65.4\phantom{0} & 53.6\phantom{0} & \textbf{62.6\phantom{0}}
+		& - & - \\
+		\citet{stahlberg-kumar-2021-synthetic}
+		& - & - & -
+		& 77.7\phantom{0} & 65.4\phantom{0} & \textbf{74.9\phantom{0}}
+		& - & 75.6\phantom{0} & 49.3\phantom{0} & \textbf{68.3\phantom{0}}
+		& - & - & - & -
+		& - & 64.7\phantom{0} \\
+		\hline
+		\hline
+		\multicolumn{17}{l}{Target only} \\
+		single
+		& 52.28 & 28.01 & 44.56 
+		& 63.31 & 46.68 & 59.09 
+		& 37.52 & 65.72 & 31.59 & 54.03 
+		& 51.61 & 58.85 & 31.58 & 50.18
+		& 52.25 & 57.33 \\
+		ensemble
+		& 58.80 & 27.93 & 48.16 
+		& 69.82 & 46.80 & 63.56 
+		& 37.70 & 71.79 & 30.93 & 56.79 
+		& 54.13 & 63.95 & 31.70 & 53.14
+		& 52.32 & 58.15 \\
+		ensemble + reranking
+		& 59.43 & 32.69 & 51.07 
+		& 70.39 & 53.01 & 66.06 
+		& 44.28 & 67.42 & 42.86 & 60.49 
+		& 55.37 & 62.44 & 35.85 & 54.38 
+		& 54.89 & 60.49 \\
+		\hline
+		\multicolumn{17}{l}{Pre-training only} \\
+		single
+		& 53.25 & 23.08 & 42.21 
+		& 65.25 & 45.10 & 59.90  
+		& 37.94 & 67.07 & 32.69 & 55.42 
+		& 44.00 & 56.81 & 26.75 & 46.38 
+		& 52.98 & 58.23 \\
+		ensemble
+		& 54.50 & 23.04 & 42.81 
+		& 66.61 & 45.33 & 60.89  
+		& 38.19 & 67.87 & 32.48 & 55.73 
+		& 44.09 & 57.38 & 26.82 & 46.73 
+		& 53.04 & 58.37 \\
+		ensemble + reranking
+		& 53.83 & 26.69 & 44.73 
+		& 67.00 & 51.03 & 63.05 
+		& 40.19 & 64.89 & 37.97 & 56.83 
+		& 46.34 & 57.79 & 31.33 & 49.43 
+		& 54.91 & 60.41 \\
+		\hline
+		\multicolumn{17}{l}{Pre-training + fine-tuning} \\
+		single
+		& 60.91 & 34.19 & 52.61 
+		& 74.39 & 57.38 & 70.20 
+		& 45.45 & 73.74 & 41.30 & 63.71 
+		& 56.58 & 63.26 & 38.26 & 55.94 
+		& 55.81 & 60.98 \\
+		ensemble
+		& 62.65 & 34.12 & 53.67 
+		& 76.46 & 58.17 & 71.93 
+		& 45.88 & 75.76 & 41.26 & 64.91 
+		& 57.38 & 65.19 & 38.45 & 57.23 
+		& 56.13 & 61.34 \\
+		ensemble + reranking
+		& 61.12 & 37.74 & 54.39 
+		& 74.66 & 62.27 & 71.80 
+		& 49.03 & 70.91 & 49.39 & \underline{65.23} 
+		& 57.36 & 64.46 & 39.68 & 57.31 
+		& 58.07 & \underline{63.47} \\
+		\hline
+		\multicolumn{17}{l}{Pre-training + fine-tuning + fine-tuning on subset of target data} \\
+		single
+		& 58.96 & 41.61 & 54.39 
+		& 72.23 & 63.39 & 70.28 
+		& - & - & - & -
+		& 57.29 & 64.17 & 40.99 & 57.65 
+		& - & - \\
+		ensemble
+		& 61.94 & 42.17 & 56.63 
+		& 75.63 & 64.54 & 73.11 
+		& - & - & - & -
+		& \underline{58.83} & 66.34 & 41.37 & \underline{59.19} 
+		& - & - \\
+		ensemble + reranking
+		& 61.73 & 43.13 & \underline{56.83}  
+		& 75.03 & 65.28 & \underline{72.85} 
+		& - & - & - & -
+		& 58.63 & 65.38 & 42.10 & 58.87 
+		& - & - \\
+		\hline
+	\end{tabular}
+	\caption{Comparison of the proposed method to other studies.}
+	\label{tab:result1}
+\end{table*}
+
+To investigate the effect of generating artificial error data at every epoch, we compare two settings:
+generating artificial data at every epoch; and generating them only once and reusing them at every epoch.
+
+Figure~\ref{fig:src} shows the results.
+We can achieve a higher performance when we generate artificial data at every epoch than we do so only once.
+Furthermore, the red line is less affected by the data size, whereas the blue line drops drastically when the data size is smaller than 4M.
+This result suggests that generating artificial data at every epoch is beneficial for diversifying erroneous sentences and improving the GEC performance regardless of the data size.
+
+\subsection{Comparison with State-of-the-Art Models}
+
+To compare our methods with state-of-the-art models, we conduct experiments using larger artificial data.
+We have shown that the effectiveness of the diversity in error types and generation of artificial data at every epoch.
+To verify the usefulness of our approach compared to the previous studies on data augmentation, we generate artificial data with 163.6M sentences 20 times,
+pre-train models for 20 epochs on the generated data, and fine-tune the models for 30 epochs.
+We accumulate gradients of 1,024 mini-batches and apply gradient clipping of 0.1 in this pre-training setting for faster training.
+
+We explain the previous methods used for comparison.
+\citet{choe-etal-2019-neural} addressed the effectiveness of pre-training a model on artificial data, fine-tuning the model on all target data,
+followed by fine-tuning the model again on the subset of target training data whose domain is similar to a test set.
+In this setting, we fine-tune the pre-trained models on all target data for five epochs, followed by fine-tuning on the subset (BEA-19 train for BEA-19 test, and FCE train for FCE test) for 30 epochs.
+
+\citet{chollampatt-etal-2019-cross} reranked the n-best candidates using the perplexity of each candidate computed by BERT~\citep{devlin-etal-2019-bert}.
+We calculated the perplexity using RoBERTa large~\citep{DBLP:journals/corr/abs-1907-11692}, following \citet{salazar-etal-2020-masked}.
+
+Table~\ref{tab:result1} shows the results.
+The ``pre-training only'' setting, which can be considered as an unsupervised GEC, exhibited close performances to the ``target-only'' setting.
+In other words, the proposed approach for artificial error generation is close to the fully supervised approach.
+The full models (the bottom group of the table) achieved comparable performance to the previous methods.
+The table also indicates that fine-tuning on a subset of target data, and model ensembling are quite effective in improving the performance.
+
+\subsection{Comparison to RTT}
+
+We compare our method to RTT, which was verified by \citet{lichtarge-etal-2019-corpora} for its effectiveness.
+We round-trip 16M sentences using four bridge languages, German (De), Finnish (Fi), French (Fr), and Latvian (Lv),
+and regard pairs of original and round-tripped sentences as supervision data for pre-training.
+Table~\ref{tab:bleu} shows the performance of the Transformer Base models that we prepared for RTT.
+In the RTT experiments, we pre-trained models for 10 epochs using round-tripped data and fine-tuned the models as we did for the erroneous data generated by the proposed method.
+To diversify the RTT data, we explore the ``all'' setting, where a training instance is chosen from the RTT'ed ones via four languages at each epoch.
+
+Table~\ref{tab:comparison} shows the average scores of the five models.
+Our error-generation modules perform better than all RTT configurations including the ``all'' setting.
+We also emphasize that RTT requires much more computations than the proposed modules because RTT must use an MT system twice (fore and back translations) to obtain artificial data.
+In contrast, the proposed method does not require special accelerators (e.g., GPUs and TPUs) for generating data.
+Therefore, the presented method is not only more effective but also more efficient than RTT.
+
+\section{Conclusion}
+
+\begin{table}[t]
+	\scriptsize
+	\fontsize{7.5pt}{8.5pt}\selectfont
+	\centering
+	\begin{tabular}{lcc}
+		\hline
+		BLEU & en $\to$ X & X $\to$ en \\
+		\hline
+		De (WMT 14) & 26.6 & 31.8 \\
+		Fi (WMT 17) & 22.8 & 26.0 \\
+		Fr (WMT 14) & 37.3 & 35.2 \\
+		Lv (WMT 17) & 18.3 & 19.1 \\
+		\hline
+	\end{tabular}
+	\caption{BLEU scores of RTT models on WMT test data measured by \texttt{SacreBLEU}~\citep{post-2018-call}.}
+	\label{tab:bleu}
+	\vspace{1.0em}
+	\scriptsize
+	\fontsize{7.5pt}{8.5pt}\selectfont
+	\centering
+	\begin{tabular}{lccc}
+		\hline
+		& \hspace{-1em}{$\def\arraystretch{0.5}\begin{array}{c}\vspace{-0.5em}\\\text{BEA-19}\\\text{test}\\\end{array}$}\hspace{-1em}
+		& \hspace{-1em}{$\def\arraystretch{0.5}\begin{array}{c}\vspace{-0.5em}\\\text{CoNLL}\\\text{14}\\\end{array}$}\hspace{-1em}
+		& \hspace{-1em}{$\def\arraystretch{0.5}\begin{array}{c}\vspace{-0.5em}\\\text{JFLEG}\\\text{test}\\\end{array}$}\hspace{-1em}
+		\\
+		\hline
+		RTT (De)
+			& 65.61 / 68.22
+			& 58.66 / 60.39
+			& 59.10 / 59.81
+			\\
+		RTT (Fi)
+			& 65.89 / 68.25
+			& 60.09 / 62.02
+			& \underline{59.45} / 59.65
+			\\
+		RTT (Fr)
+			& 65.81 / 68.08
+			& 59.50 / 61.10
+			& 58.78 / 59.31
+			\\
+		RTT (Lv)
+			& 65.80 / 67.97
+			& 58.79 / 60.51
+			& 59.20 / 59.65
+			\\
+		\hline
+		RTT (all)
+			& \underline{66.05} / \underline{68.71}
+			& \underline{60.30} / \underline{62.09}
+			& 59.41 / \underline{59.97}
+			\\
+		\hline
+		Ours 
+			& \textbf{67.32} / \textbf{69.42}
+			& \textbf{60.60} / \textbf{62.25}
+			& \textbf{60.12} / \textbf{60.69}
+			\\
+		\hline
+	\end{tabular}
+	\caption{Comparison of our method and RTT.}
+	\label{tab:comparison}
+\end{table}
+
+In this study, we proposed a framework to generate artificial error data for GEC, incorporating various error-generation modules.
+We confirmed that the diversity of errors improved the performance of GEC models pre-trained on the error data.
+The performance of the presented method was better than that of the RTT baselines under the same conditions.
+We observed that the size of the monolingual corpus was less critical, but the number of total steps in pre-training was important.
+
+The presented error-generation modules have several hyperparameters. Optimizing these hyperparameters for a specific dataset would be an immediate future work.
+We further plan to combine the error-generation modules with other methods.
+For example, integrating error-generation modules in a decoder of back-translation and/or round-trip translation model may be a promising direction.
+
+\section*{Acknowledgments}
+
+We thank all the anonymous reviewers for their careful reading and constructive comments.
+This work is supported by RWBC-OIL.
+For experiments, computational resource of AI Bridging Cloud Infrastructure (ABCI) provided by
+National Institute of Advanced Industrial Science and Technology (AIST) was used.
+
+\bibliographystyle{acl_natbib}
+\bibliography{paclic35}
+\end{document}

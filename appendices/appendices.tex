@@ -1,0 +1,3710 @@
+\documentclass[11pt]{article}
+\usepackage{paclic35}
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{url}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\setlength\titlebox{6.5cm}    % Expanding the titlebox
+
+\usepackage{natbib}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{bm}
+\usepackage{graphics}
+\usepackage{graphicx}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage[cmtip,all]{xy}
+\usepackage{hyperref}
+\definecolor{darkblue}{rgb}{0, 0, 0.5}
+
+\usepackage{tikz}
+\usetikzlibrary{automata}
+\usetikzlibrary{arrows}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{positioning}
+\usetikzlibrary{intersections, calc}
+\usetikzlibrary{decorations}
+\usetikzlibrary{decorations.markings}
+\usetikzlibrary{decorations.pathreplacing,angles,quotes}
+\usetikzlibrary{fit}
+\usetikzlibrary{math}
+\usetikzlibrary{shapes}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+\usepackage{bchart}
+
+\newenvironment{desc}{%
+	\list{}{%
+		\parsep 0.25em
+		\topsep 0.25em
+		\leftmargin 1em
+		\rightmargin 0em
+	}
+	\item\relax
+	\sloppy
+}{%
+	\endlist
+}
+
+\newcommand{\attr}[4]{%
+	(#1, \texttt{#2}, $\sigma=#3$, $\mu=#4$)
+}
+
+
+\begin{document}
+
+\appendix
+
+\section{Error Generating Modules}
+
+We explain error-generating modules in detail.
+The order of applying modules, the error category, and the parameters to sample threshold are shown after the module name.
+
+Error category annotation is as follows.
+\begin{itemize}
+	\item[\texttt{F}:] Functional Word Error
+	\item[\texttt{I}:] Inflection Error
+	\item[\texttt{L}:] Lexical Choice Error
+	\item[\texttt{O}:] Word Order Error
+	\item[\texttt{W}:] Writing System Error
+	\item[\texttt{X}:] Other
+\end{itemize}
+
+\paragraph{Preposition}\mbox{}
+
+The `preposition' modules apply to words with the Penn Treebank's part-of-speech tag \texttt{IN},
+and the dependency tag \texttt{prep}, \texttt{ROOT}, or \texttt{conj}.
+We categorize them into function word error.
+
+\noindent
+\textbf{standard\_prep}~\attr{1}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{of},
+	\textit{to},
+	\textit{in},
+	\textit{for},
+	\textit{on},
+	\textit{with},
+	\textit{at}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{of},
+	\textit{to},
+	\textit{in},
+	\textit{for},
+	\textit{on},
+	\textit{with},
+	\textit{by},
+	\textit{at}
+\end{desc}
+
+\noindent
+\textbf{prep\_from}~\attr{2}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{from}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{in},
+	\textit{at},
+	\textit{of},
+	\textit{with},
+	\textit{about},
+	\textit{since}
+\end{desc}
+
+\noindent
+\textbf{prep\_into}~\attr{3}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{into}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.2),
+	\textit{in}~(0.3),
+	\textit{to}~(0.3),
+	\textit{toward}~(0.1),
+	\textit{towards}~(0.1)
+\end{desc}
+
+\noindent
+\textbf{prep\_among}~\attr{4}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{among}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{in},
+	\textit{on},
+	\textit{at},
+	\textit{about},
+	\textit{between},
+	\textit{amid}
+\end{desc}
+
+\noindent
+\textbf{prep\_amongst}~\attr{5}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{amongst}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{in},
+	\textit{on},
+	\textit{at},
+	\textit{about},
+	\textit{between},
+	\textit{amidst}
+\end{desc}
+
+\noindent
+\textbf{prep\_amid}~\attr{6}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{amid}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{in},
+	\textit{on},
+	\textit{at},
+	\textit{about},
+	\textit{between},
+	\textit{among}
+\end{desc}
+
+\noindent
+\textbf{prep\_amidst}~\attr{7}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{amidst}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{in},
+	\textit{on},
+	\textit{at},
+	\textit{about},
+	\textit{between},
+	\textit{amongst}
+\end{desc}
+
+\noindent
+\textbf{prep\_about}~\attr{8}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{about}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{in},
+	\textit{on},
+	\textit{of},
+	\textit{to},
+	\textit{at}
+\end{desc}
+
+\noindent
+\textbf{prep\_against}~\attr{9}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{against}
+	$\rightsquigarrow$
+	\textit{to},
+	\textit{for},
+	\textit{of},
+	\textit{with}
+\end{desc}
+
+\noindent
+\textbf{prep\_by}~\attr{10}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{by}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{in},
+	\textit{on},
+	\textit{at},
+	\textit{for},
+	\textit{with},
+	\textit{of},
+	\textit{from},
+	\textit{through},
+	\textit{until},
+	\textit{till}
+\end{desc}
+
+\noindent
+\textbf{prep\_since}~\attr{11}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{since}
+	$\rightsquigarrow$
+	\textit{from}
+\end{desc}
+
+\noindent
+\textbf{prep\_until}~\attr{12}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{until}
+	$\rightsquigarrow$
+	\textit{by},
+	\textit{for},
+	\textit{to},
+	\textit{in},
+	\textit{up to},
+	\textit{when}
+\end{desc}
+
+\noindent
+\textbf{prep\_till}~\attr{13}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{till}
+	$\rightsquigarrow$
+	\textit{by},
+	\textit{for},
+	\textit{to},
+	\textit{in},
+	\textit{up to},
+	\textit{when}
+\end{desc}
+
+\noindent
+\textbf{prep\_between}~\attr{14}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{between}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{in},
+	\textit{on},
+	\textit{at},
+	\textit{about},
+	\textit{among},
+	\textit{amongst},
+	\textit{amid},
+	\textit{amidst}
+\end{desc}
+
+\noindent
+\textbf{prep\_during}~\attr{15}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{during}
+	$\rightsquigarrow$
+	\textit{in},
+	\textit{for},
+	\textit{while},
+	\textit{when},
+	\textit{through},
+	\textit{across}
+\end{desc}
+
+\noindent
+\textbf{prep\_within}~\attr{16}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{within}
+	$\rightsquigarrow$
+	\textit{with},
+	\textit{in},
+	\textit{of},
+	\textit{on}
+\end{desc}
+
+\noindent
+\textbf{prep\_after}~\attr{17}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{after}
+	$\rightsquigarrow$
+	\textit{for},
+	\textit{by},
+	\textit{over},
+	\textit{from},
+	\textit{when}
+\end{desc}
+
+\noindent
+\textbf{prep\_before}~\attr{18}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{before}
+	$\rightsquigarrow$
+	\textit{on},
+	\textit{for},
+	\textit{when}
+\end{desc}
+
+\noindent
+\textbf{prep\_as}~\attr{19}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{as}
+	$\rightsquigarrow$
+	\textit{by},
+	\textit{of},
+	\textit{in},
+	\textit{on},
+	\textit{at},
+	\textit{like}
+\end{desc}
+
+\noindent
+\textbf{prep\_like}~\attr{20}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{like}
+	$\rightsquigarrow$
+	\textit{as}~(0.8),
+	\textit{that}~(0.1),
+	\textit{than}~(0.1)
+\end{desc}
+
+\noindent
+\textbf{prep\_than}~\attr{21}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{than}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.2),
+	\textit{to}~(0.4),
+	\textit{from}~(0.2),
+	\textit{over}~(0.1),
+	\textit{beyond}~(0.1)
+\end{desc}
+
+\noindent
+\textbf{prep\_through}~\attr{22}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{through}
+	$\rightsquigarrow$
+	\textit{in},
+	\textit{over},
+	\textit{across},
+	\textit{into},
+	\textit{of},
+	\textit{with},
+	\textit{by},
+	\textit{throughout},
+	\textit{thru}
+\end{desc}
+
+\noindent
+\textbf{prep\_throughout}~\attr{23}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{throughout}
+	$\rightsquigarrow$
+	\textit{in},
+	\textit{over},
+	\textit{across},
+	\textit{into},
+	\textit{of},
+	\textit{with},
+	\textit{by},
+	\textit{through}
+\end{desc}
+
+\noindent
+\textbf{prep\_above}~\attr{24}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{above}
+	$\rightsquigarrow$
+	\textit{on},
+	\textit{from},
+	\textit{to},
+	\textit{over}
+\end{desc}
+
+\noindent
+\textbf{prep\_behind}~\attr{25}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{behind}
+	$\rightsquigarrow$
+	\textit{after},
+	\textit{from},
+	\textit{of},
+	\textit{out}
+\end{desc}
+
+\noindent
+\textbf{prep\_below}~\attr{26}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{below}
+	$\rightsquigarrow$
+	\textit{in},
+	\textit{on},
+	\textit{by},
+	\textit{with},
+	\textit{under},
+	\textit{through},
+	\textit{within}
+\end{desc}
+
+\noindent
+\textbf{prep\_beyond}~\attr{27}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{beyond}
+	$\rightsquigarrow$
+	\textit{on},
+	\textit{over},
+	\textit{above},
+	\textit{out of},
+	\textit{far from}
+\end{desc}
+
+\noindent
+\textbf{prep\_over}~\attr{28}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{over}
+	$\rightsquigarrow$
+	\textit{on},
+	\textit{from},
+	\textit{to},
+	\textit{above}
+\end{desc}
+
+\noindent
+\textbf{prep\_across}~\attr{29}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{across}
+	$\rightsquigarrow$
+	\textit{beyond},
+	\textit{over},
+	\textit{through},
+	\textit{throughout},
+	\textit{during}
+\end{desc}
+
+\noindent
+\textbf{prep\_under}~\attr{30}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{under}
+	$\rightsquigarrow$
+	\textit{in},
+	\textit{on},
+	\textit{by},
+	\textit{with},
+	\textit{below},
+	\textit{through},
+	\textit{within}
+\end{desc}
+
+\noindent
+\textbf{prep\_upon}~\attr{31}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{upon}
+	$\rightsquigarrow$
+	\textit{on},
+	\textit{up},
+	\textit{up on},
+	\textit{over},
+	\textit{after},
+	\textit{to}
+\end{desc}
+
+\noindent
+\textbf{prep\_out}~\attr{32}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{out}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}
+\end{desc}
+
+\noindent
+\textbf{prep\_toward}~\attr{33}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{toward},
+	\textit{towards}
+	$\rightsquigarrow$
+	\textit{to},
+	\textit{with},
+	\textit{of},
+	\textit{for},
+	\textit{in},
+	\textit{into}
+\end{desc}
+
+\paragraph{Mark}\mbox{}
+
+The `mark' modules apply to words with the Penn Treebank's part-of-speech tag \texttt{IN},
+and the dependency tag \texttt{mark}.
+We categorize them into function word error.
+
+\noindent
+\textbf{standard\_mark}~\attr{34}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{as},
+	\textit{if},
+	\textit{because},
+	\textit{so},
+	\textit{whether},
+	\textit{while},
+	\textit{since},
+	\textit{although},
+	\textit{than},
+	\textit{though},
+	\textit{once},
+	\textit{whereas},
+	\textit{whilst},
+	\textit{like},
+	\textit{except}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}
+\end{desc}
+
+\noindent
+\textbf{mark\_for}~\attr{35}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{for}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.2),
+	\textit{to}~(0.6),
+	\textit{on}~(0.1),
+	\textit{in}~(0.1)
+\end{desc}
+
+\paragraph{Agent}\mbox{}
+
+The `agent' modules apply to words with the Penn Treebank's part-of-speech tag \texttt{IN},
+and the dependency tag \texttt{agent}.
+We categorize them into function word error.
+
+\noindent
+\textbf{agent\_by}~\attr{36}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{by}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{of},
+	\textit{from},
+	\textit{with},
+	\textit{on}
+\end{desc}
+
+\noindent
+\textbf{agent\_between}~\attr{37}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{between}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{by},
+	\textit{in},
+	\textit{on},
+	\textit{at},
+	\textit{from},
+	\textit{with},
+	\textit{about},
+	\textit{among},
+	\textit{amongst},
+	\textit{amid},
+	\textit{amidst}
+\end{desc}
+
+\paragraph{Pcomp}\mbox{}
+
+The `pcomp' modules apply to words with the Penn Treebank's part-of-speech tag \texttt{IN}
+and the dependency tag \texttt{pcomp}.
+We categorize them into function word error.
+
+\noindent
+\textbf{pcomp\_of}~\attr{38}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{of}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}
+\end{desc}
+
+\noindent
+\textbf{pcomp\_to}~\attr{39}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{to}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}
+\end{desc}
+
+\noindent
+\textbf{pcomp\_on}~\attr{40}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{on}
+	$\rightsquigarrow$
+	\textit{at},
+	\textit{in},
+	\textit{of}
+\end{desc}
+
+\noindent
+\textbf{pcomp\_for}~\attr{41}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{for}
+	$\rightsquigarrow$
+	\textit{to}~(0.4),
+	\textit{at}~(0.2),
+	\textit{in}~(0.2),
+	\textit{on}~(0.2)
+\end{desc}
+
+\noindent
+\textbf{pcomp\_at}~\attr{42}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{at}
+	$\rightsquigarrow$
+	\textit{on},
+	\textit{in},
+	\textit{of}
+\end{desc}
+
+\noindent
+\textbf{pcomp\_by}~\attr{43}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{by}
+	$\rightsquigarrow$
+	\textit{at},
+	\textit{in},
+	\textit{on},
+	\textit{of},
+	\textit{from}
+\end{desc}
+
+\paragraph{Dative}\mbox{}
+
+The `dative' modules apply to words with the Penn Treebank's part-of-speech tag \texttt{IN}, and the dependency tag \texttt{dative}.
+We categorize them into function word error.
+
+\noindent
+\textbf{dative\_to}~\attr{44}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{to}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.4),
+	\textit{for}~(0.6)
+\end{desc}
+
+\noindent
+\textbf{dative\_for}~\attr{45}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{for}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.4),
+	\textit{to}~(0.6)
+\end{desc}
+
+\paragraph{Adverbial Modifier}\mbox{}
+
+This module applies to words with the Penn Treebank's part-of-speech tag \texttt{IN}, and the dependency tag \texttt{advmod}.
+We categorize them into functional word error.
+
+\noindent
+\textbf{prep\_advmod}~\attr{46}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{at},
+	\textit{as}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}
+\end{desc}
+
+\paragraph{Preposition Insertion}\mbox{}
+
+\noindent
+\textbf{post\_vb\_prep}~\attr{47}{F}{0.05}{0.05}
+
+\begin{desc}
+	This module inserts
+	\textit{to},
+	\textit{in},
+	\textit{on},
+	\textit{at},
+	\textit{by},
+	\textit{for},
+	\textit{with},
+	\textit{of}
+	at the position which satisfies the conditions 1., 2., and 3. below.
+
+	\begin{itemize}
+		\setlength{\itemsep}{0em}
+		\setlength{\parskip}{0em}
+		\item[1.] Penn Treebank's part-of-speech tag of the left word is
+			\texttt{VB},
+			\texttt{VBD},
+			\texttt{VBG},
+			\texttt{VBN},
+			\texttt{VBP},
+			\texttt{VBZ}.
+		\item[2.] Dependency tag of the left word is
+			\texttt{acl},
+			\texttt{advcl},
+			\texttt{xcomp},
+			\texttt{pcomp}.
+		\item[3.] 3a or 3b.
+		\item[3a.] Universal part-of-speech tag of the right word is
+			\texttt{NOUN},
+			\texttt{DET},
+			\texttt{ADJ},
+			\texttt{PROPN}.
+		\item[3b.] Universal part-of-speech tag of the right word is \texttt{SCONJ},
+			and dependency tag of the right word is \texttt{mark}.
+	\end{itemize}
+\end{desc}
+
+\paragraph{Pronoun}\mbox{}
+
+These modules apply to word such that lemma is \texttt{-PRON-}.
+
+\noindent
+\textbf{First Singular}
+
+\noindent
+\textbf{1sng\_subj}~\attr{48}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag:
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{conj},
+	\texttt{appos},
+	\texttt{attr}.
+
+	\textit{I}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}
+	\textit{i},
+	\textit{it},
+	\textit{me},
+	\textit{we}
+\end{desc}
+
+\noindent
+\textbf{1sng\_nsubj\_obj}~\attr{49}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag:
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{conj},
+	\texttt{appos},
+	\texttt{attr}.
+
+	\textit{me}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{I},
+	\textit{my}
+\end{desc}
+
+\noindent
+\textbf{1sng\_dobj}~\attr{50}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{dobj}.
+
+	\textit{me}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.1),
+	\textit{I}~(0.1),
+	\textit{for me}~(0.3),
+	\textit{to me}~(0.3),
+	\textit{on me}~(0.05),
+	\textit{in me}~(0.05),
+	\textit{at me}~(0.05),
+	\textit{of me}~(0.05)
+\end{desc}
+
+\noindent
+\textbf{1sng\_pobj}~\attr{51}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{pobj}.
+
+	\textit{me}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{I},
+	\textit{my}
+\end{desc}
+
+\noindent
+\textbf{1sng\_dative}~\attr{52}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{dative}.
+
+	\textit{me}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.1),
+	\textit{I}~(0.1),
+	\textit{for me}~(0.3),
+	\textit{to me}~(0.35),
+	\textit{on me}~(0.05),
+	\textit{in me}~(0.05),
+	\textit{at me}~(0.05)
+\end{desc}
+
+\noindent
+\textbf{1sng\_poss}~\attr{53}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{mine}
+	$\rightsquigarrow$
+	\textit{my},
+	\textit{me},
+	\textit{ours},
+	\textit{his},
+	\textit{hers}
+\end{desc}
+
+\noindent
+\textbf{1sng\_poss\_det}~\attr{54}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{my}
+	$\rightsquigarrow$
+	\textit{I},
+	\textit{me},
+	\textit{mine},
+	\textit{a},
+	\textit{an},
+	\textit{the},
+	\textit{its},
+	\textit{his},
+	\textit{her},
+	\textit{their}
+\end{desc}
+
+\noindent
+\textbf{1sng\_reflexive}~\attr{55}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag:
+	\texttt{dobj},
+	\texttt{conj},
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{npadvmod},
+	\texttt{dative},
+	\texttt{attr}.
+
+	\textit{myself}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.2),
+	\textit{to myself}~(0.1),
+	\textit{of myself}~(0.1),
+	\textit{for myself}~(0.1),
+	\textit{by myself}~(0.1),
+	\textit{with myself}~(0.1),
+	\textit{myselves}~(0.02),
+	\textit{to myselves}~(0.02),
+	\textit{of myselves}~(0.02),
+	\textit{for myselves}~(0.02),
+	\textit{by myselves}~(0.02),
+	\textit{with myselves}~(0.02),
+	\textit{me}~(0.1),
+	\textit{my}~(0.02),
+	\textit{mine}~(0.02),
+	\textit{yourself}~(0.02),
+	\textit{ourselves}~(0.02)
+\end{desc}
+
+\noindent
+\textbf{1sng\_appos\_reflexive}~\attr{56}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{appos}.
+
+	\textit{myself}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{me},
+	\textit{myselves},
+	\textit{my self},
+	\textit{for myself},
+	\textit{by myself}
+\end{desc}
+
+\noindent
+\textbf{1sng\_pobj\_reflexive}~\attr{57}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{pobj}.
+
+	\textit{myself}
+	$\rightsquigarrow$
+	\textit{me},
+	\textit{my},
+	\textit{my self},
+	\textit{myselves},
+	\textit{I}
+\end{desc}
+
+\noindent
+\textbf{First Plural}
+
+\noindent
+\textbf{1plu\_subj}~\attr{58}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: 
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{conj},
+	\texttt{appos},
+	\texttt{nmod},
+	\texttt{compound},
+	\texttt{attr}.
+
+	\textit{we}
+	$\rightsquigarrow$
+	\textit{I},
+	\textit{us},
+	\textit{our},
+	\textit{me},
+	\textit{they},
+	\textit{you}
+\end{desc}
+
+\noindent
+\textbf{1plu\_pobj}~\attr{59}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{pobj}.
+
+	\textit{us}
+	$\rightsquigarrow$
+	\textit{we},
+	\textit{ours},
+	\textit{our},
+	\textit{ourselves}
+\end{desc}
+
+\noindent
+\textbf{1plu\_dobj}~\attr{60}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{dobj}.
+	
+	\textit{us}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.1),
+	\textit{we}~(0.1),
+	\textit{for us}~(0.3),
+	\textit{to us}~(0.3),
+	\textit{on us}~(0.05),
+	\textit{in us}~(0.05),
+	\textit{at us}~(0.05),
+	\textit{of us}~(0.05)
+\end{desc}
+
+\noindent
+\textbf{1plu\_nsubj\_obj}~\attr{61}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: 
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{conj},
+	\texttt{appos},
+	\texttt{nmod},
+	\texttt{compound},
+	\texttt{attr}.
+
+	\textit{us}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{we},
+	\textit{our}
+\end{desc}
+
+\noindent
+\textbf{1plu\_dative}~\attr{62}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{dative}.
+
+	\textit{us}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.1),
+	\textit{we}~(0.1),
+	\textit{for us}~(0.3),
+	\textit{to us}~(0.35),
+	\textit{on us}~(0.05),
+	\textit{in us}~(0.05),
+	\textit{at us}~(0.05)
+\end{desc}
+
+\noindent
+\textbf{1plu\_poss}~\attr{63}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{ours}
+	$\rightsquigarrow$
+	\textit{our},
+	\textit{us},
+	\textit{we},
+	\textit{mine},
+	\textit{theirs},
+	\textit{yours}
+\end{desc}
+
+\noindent
+\textbf{1plu\_poss\_det}~\attr{64}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{our}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{we},
+	\textit{us},
+	\textit{ours},
+	\textit{a},
+	\textit{an},
+	\textit{the},
+	\textit{theirs},
+	\textit{its},
+	\textit{my}
+\end{desc}
+
+\noindent
+\textbf{1plu\_reflexive}~\attr{65}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag:
+	\texttt{dobj},
+	\texttt{conj},
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{npadvmod},
+	\texttt{dative},
+	\texttt{attr}.
+
+	\textit{ourselves}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.2),
+	\textit{to ourselves}~(0.1),
+	\textit{of ourselves}~(0.1),
+	\textit{for ourselves}~(0.1),
+	\textit{by ourselves}~(0.1),
+	\textit{with ourselves}~(0.1),
+	\textit{ourself}~(0.02),
+	\textit{to ourself}~(0.02),
+	\textit{of ourself}~(0.02),
+	\textit{for ourself}~(0.02),
+	\textit{by ourself}~(0.02),
+	\textit{with ourself}~(0.02),
+	\textit{us}~(0.1),
+	\textit{our}~(0.02),
+	\textit{ours}~(0.02),
+	\textit{yourselves}~(0.02),
+	\textit{myself}~(0.02)
+\end{desc}
+
+\noindent
+\textbf{1plu\_appos\_reflexive}~\attr{66}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{appos}.
+
+	\textit{ourselves}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{us},
+	\textit{ourself},
+	\textit{our selves},
+	\textit{for ourselves},
+	\textit{by ourselves}
+\end{desc}
+
+\noindent
+\textbf{1plu\_pobj\_reflexive}~\attr{67}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{pobj}.
+
+	\textit{ourselves}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{us},
+	\textit{ourself},
+	\textit{our selves},
+	\textit{for ourselves},
+	\textit{by ourselves}
+\end{desc}
+
+\noindent
+\textbf{Second}
+
+\noindent
+\textbf{2nd\_subj}~\attr{68}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag:
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{conj},
+	\texttt{appos},
+	\texttt{nmod},
+	\texttt{compound},
+	\texttt{attr}.
+
+	\textit{you}
+	$\rightsquigarrow$
+	\textit{u},
+	\textit{yo},
+	\textit{your},
+	\textit{yours},
+	\textit{me},
+	\textit{they}
+\end{desc}
+
+\noindent
+\textbf{2nd\_pobj}~\attr{69}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{pobj}.
+
+	\textit{you}
+	$\rightsquigarrow$
+	\textit{u},
+	\textit{yo},
+	\textit{your},
+	\textit{yours},
+	\textit{yourself},
+	\textit{yourselves}
+\end{desc}
+
+\noindent
+\textbf{2nd\_dobj}~\attr{70}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{dobj}.
+
+	\textit{you}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.1),
+	\textit{u}~(0.05),
+	\textit{yo}~(0.05),
+	\textit{for you}~(0.3),
+	\textit{to you}~(0.3),
+	\textit{on you}~(0.05),
+	\textit{in you}~(0.05),
+	\textit{at you}~(0.05),
+	\textit{of you}~(0.05)
+\end{desc}
+
+\noindent
+\textbf{2nd\_dative}~\attr{71}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{dative}.
+
+	\textit{you}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.1),
+	\textit{u}~(0.05),
+	\textit{yo}~(0.05),
+	\textit{for you}~(0.3),
+	\textit{to you}~(0.35),
+	\textit{on you}~(0.05),
+	\textit{in you}~(0.05),
+	\textit{at you}~(0.05)
+\end{desc}
+
+\noindent
+\textbf{2nd\_poss}~\attr{72}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{yours}
+	$\rightsquigarrow$
+	\textit{you},
+	\textit{your},
+	\textit{theirs},
+	\textit{mine},
+	\textit{ours}
+\end{desc}
+
+\noindent
+\textbf{2nd\_poss\_det}~\attr{73}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{your}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{you},
+	\textit{yours},
+	\textit{their},
+	\textit{a},
+	\textit{an},
+	\textit{the},
+	\textit{its},
+	\textit{they}
+\end{desc}
+
+\noindent
+\textbf{Second Singular}
+
+\noindent
+\textbf{2sng\_reflexive}~\attr{74}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag:
+	\texttt{dobj},
+	\texttt{conj},
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{npadvmod},
+	\texttt{dative},
+	\texttt{attr}.
+
+	\textit{youself}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.2),
+	\textit{to yourself}~(0.1),
+	\textit{of yourself}~(0.1),
+	\textit{for yourself}~(0.1),
+	\textit{by yourself}~(0.1),
+	\textit{with yourself}~(0.1),
+	\textit{yourselves}~(0.02),
+	\textit{to yourselves}~(0.02),
+	\textit{of yourselves}~(0.02),
+	\textit{for yourselves}~(0.02),
+	\textit{by yourselves}~(0.02),
+	\textit{with yourselves}~(0.02),
+	\textit{you}~(0.1),
+	\textit{your}~(0.02),
+	\textit{yours}~(0.02),
+	\textit{themself}~(0.02),
+	\textit{myself}~(0.02)
+\end{desc}
+
+\noindent
+\textbf{2sng\_appos\_reflexive}~\attr{75}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{appos}.
+
+	\textit{youself}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{you},
+	\textit{yourselves},
+	\textit{your self},
+	\textit{for yourself},
+	\textit{by yourself}
+\end{desc}
+
+\noindent
+\textbf{2sng\_pobj\_reflexive}~\attr{76}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{pobj}.
+
+	\textit{youself}
+	$\rightsquigarrow$
+	\textit{you},
+	\textit{your self},
+	\textit{yourselves},
+	\textit{your}
+\end{desc}
+
+\noindent
+\textbf{Second Plural}
+
+\noindent
+\textbf{2plu\_reflexive}~\attr{77}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: 
+	\texttt{dobj},
+	\texttt{conj},
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{npadvmod},
+	\texttt{dative},
+	\texttt{attr}.
+
+	\textit{yourselves}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.2),
+	\textit{to yourselves}~(0.1),
+	\textit{of yourselves}~(0.1),
+	\textit{for yourselves}~(0.1),
+	\textit{by yourselves}~(0.1),
+	\textit{with yourselves}~(0.1),
+	\textit{yourself}~(0.02),
+	\textit{to yourself}~(0.02),
+	\textit{of yourself}~(0.02),
+	\textit{for yourself}~(0.02),
+	\textit{by yourself}~(0.02),
+	\textit{with yourself}~(0.02),
+	\textit{you}~(0.1),
+	\textit{your}~(0.02),
+	\textit{yours}~(0.02),
+	\textit{themselves}~(0.02),
+	\textit{ourselves}~(0.02)
+\end{desc}
+
+\noindent
+\textbf{2plu\_appos\_reflexive}~\attr{78}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{appos}.
+
+	\textit{yourselves}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{you},
+	\textit{yourself},
+	\textit{your selves},
+	\textit{for yourselves},
+	\textit{by yourselves}
+\end{desc}
+
+\noindent
+\textbf{2plu\_pobj\_reflexive}~\attr{79}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{pobj}.
+
+	\textit{yourselves}
+	$\rightsquigarrow$
+	\textit{you},
+	\textit{your self},
+	\textit{myselves},
+	\textit{your}
+\end{desc}
+
+\noindent
+\textbf{Third Singular Masculine}
+
+\noindent
+\textbf{3sng\_masc\_subj}~\attr{80}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag:
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{conj},
+	\texttt{appos},
+	\texttt{nmod},
+	\texttt{compound},
+	\texttt{attr}.
+
+	\textit{he}
+	$\rightsquigarrow$
+	\textit{she},
+	\textit{his},
+	\textit{him},
+	\textit{they},
+	\textit{them},
+	\textit{their}
+\end{desc}
+
+\noindent
+\textbf{3sng\_masc\_pobj}~\attr{81}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{pobj}.
+
+	\textit{him}
+	$\rightsquigarrow$
+	\textit{her},
+	\textit{he},
+	\textit{his},
+	\textit{their},
+	\textit{them},
+	\textit{himself}
+\end{desc}
+
+\noindent
+\textbf{3sng\_masc\_dobj}~\attr{82}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: texttt{dobj}.
+
+	\textit{him}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.1),
+	\textit{her}~(0.05),
+	\textit{he}~(0.05),
+	\textit{for him}~(0.3),
+	\textit{to him}~(0.3),
+	\textit{on him}~(0.05),
+	\textit{in him}~(0.05),
+	\textit{at him}~(0.05),
+	\textit{of him}~(0.05)
+\end{desc}
+
+\noindent
+\textbf{3sng\_masc\_nsubj\_obj}~\attr{83}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag:
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{conj},
+	\texttt{appos},
+	\texttt{nmod},
+	\texttt{compound},
+	\texttt{attr}.
+
+	\textit{him}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{her},
+	\textit{he},
+	\textit{his}
+\end{desc}
+
+\noindent
+\textbf{3sng\_masc\_dative}~\attr{84}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{dative}.
+
+	\textit{him}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.1),
+	\textit{her}~(0.05),
+	\textit{he}~(0.05),
+	\textit{for him}~(0.3),
+	\textit{to him}~(0.35),
+	\textit{on him}~(0.05),
+	\textit{in him}~(0.05),
+	\textit{at him}~(0.05)
+\end{desc}
+
+\noindent
+\textbf{3sng\_masc\_poss}~\attr{85}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{his}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{he},
+	\textit{him},
+	\textit{her},
+	\textit{a},
+	\textit{an},
+	\textit{the},
+	\textit{its},
+	\textit{theirs}
+\end{desc}
+
+\noindent
+\textbf{3sng\_masc\_reflexive}~\attr{86}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag:
+	\texttt{dobj},
+	\texttt{conj},
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{npadvmod},
+	\texttt{dative},
+	\texttt{attr}.
+
+	\textit{himself}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.2),
+	\textit{to himself}~(0.1),
+	\textit{of himself}~(0.1),
+	\textit{for himself}~(0.1),
+	\textit{by himself}~(0.1),
+	\textit{with himself}~(0.1),
+	\textit{himselves} {0.01},
+	\textit{to himselves}~(0.01),
+	\textit{of himselves}~(0.01),
+	\textit{for himselves}~(0.01),
+	\textit{by himselves}~(0.01),
+	\textit{with himselves}~(0.01),
+	\textit{themself}~(0.01),
+	\textit{to themself}~(0.01),
+	\textit{of themself}~(0.01),
+	\textit{for themself}~(0.01),
+	\textit{by themself}~(0.01),
+	\textit{with themself}~(0.01),
+	\textit{he}~(0.045),
+	\textit{his}~(0.045),
+	\textit{him}~(0.045),
+	\textit{herself}~(0.045)
+\end{desc}
+
+\noindent
+\textbf{3sng\_masc\_appos\_reflexive}~\attr{87}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{appos}.
+
+	\textit{himself}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{him},
+	\textit{themself},
+	\textit{him self},
+	\textit{for himself},
+	\textit{by himself},
+	\textit{herself}
+\end{desc}
+
+\noindent
+\textbf{3sng\_masc\_pobj\_reflexive}~\attr{88}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{pobj}.
+
+	\textit{himself}
+	$\rightsquigarrow$
+	\textit{him},
+	\textit{him self},
+	\textit{themself},
+	\textit{he},
+	\textit{herself}
+\end{desc}
+
+\noindent
+\textbf{Third Singular Feminine}
+
+\noindent
+\textbf{3sng\_fem\_subj}~\attr{89}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag:
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{conj},
+	\texttt{appos},
+	\texttt{nmod},
+	\texttt{compound},
+	\texttt{attr}.
+
+	\textit{she}
+	$\rightsquigarrow$
+	\textit{her},
+	\textit{hers},
+	\textit{they},
+	\textit{them},
+	\textit{their},
+	\textit{he}
+\end{desc}
+
+\noindent
+\textbf{3sng\_fem\_pobj}~\attr{90}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{pobj}.
+
+	\textit{her}
+	$\rightsquigarrow$
+	\textit{she},
+	\textit{hers},
+	\textit{their},
+	\textit{them},
+	\textit{herself},
+	\textit{him}
+\end{desc}
+
+\noindent
+\textbf{3sng\_fem\_dobj}~\attr{91}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{dobj}.
+
+	\textit{her}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.1),
+	\textit{she}~(0.05),
+	\textit{him}~(0.05),
+	\textit{for her}~(0.3),
+	\textit{to her}~(0.3),
+	\textit{on her}~(0.05),
+	\textit{in her}~(0.05),
+	\textit{at her}~(0.05),
+	\textit{of her}~(0.05)
+\end{desc}
+
+\noindent
+\textbf{3sng\_fem\_nsubj\_obj}~\attr{92}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag:
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{conj},
+	\texttt{appos},
+	\texttt{nmod},
+	\texttt{compound},
+	\texttt{attr}.
+
+	\textit{her}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{she},
+	\textit{hers},
+	\textit{them},
+	\textit{him}
+\end{desc}
+
+\noindent
+\textbf{3sng\_fem\_dative}~\attr{93}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{dative}.
+
+	\textit{her}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.1),
+	\textit{she}~(0.05),
+	\textit{him}~(0.05),
+	\textit{for her}~(0.3),
+	\textit{to her}~(0.35),
+	\textit{on her}~(0.05),
+	\textit{in her}~(0.05),
+	\textit{at her}~(0.05)
+\end{desc}
+
+\noindent
+\textbf{3sng\_fem\_poss}~\attr{94}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{hers}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{she},
+	\textit{her},
+	\textit{theirs},
+	\textit{his},
+	\textit{they},
+	\textit{yours}
+\end{desc}
+
+\noindent
+\textbf{3sng\_fem\_poss\_det}~\attr{95}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{her}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{she},
+	\textit{hers},
+	\textit{their},
+	\textit{his},
+	\textit{a},
+	\textit{an},
+	\textit{the},
+	\textit{its}
+\end{desc}
+
+\noindent
+\textbf{3sng\_fem\_reflexive}~\attr{96}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag:
+	\texttt{dobj},
+	\texttt{conj},
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{npadvmod},
+	\texttt{dative},
+	\texttt{attr}.
+
+	\textit{herself}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.2),
+	\textit{to herself}~(0.1),
+	\textit{of herself}~(0.1),
+	\textit{for herself}~(0.1),
+	\textit{by herself}~(0.1),
+	\textit{with herself}~(0.1),
+	\textit{herselves}~(0.01),
+	\textit{to herselves}~(0.01),
+	\textit{of herselves}~(0.01),
+	\textit{for herselves}~(0.01),
+	\textit{by herselves}~(0.01),
+	\textit{with herselves}~(0.01),
+	\textit{themself}~(0.01),
+	\textit{to themself}~(0.01),
+	\textit{of themself}~(0.01),
+	\textit{for themself}~(0.01),
+	\textit{by themself}~(0.01),
+	\textit{with themself}~(0.01),
+	\textit{she}~(0.045),
+	\textit{her}~(0.045),
+	\textit{hers}~(0.045),
+	\textit{himself}~(0.045)
+\end{desc}
+
+\noindent
+\textbf{3sng\_fem\_appos\_reflexive}~\attr{97}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{appos}.
+
+	\textit{herself}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{her},
+	\textit{themself},
+	\textit{her self},
+	\textit{for herself},
+	\textit{by herself},
+	\textit{himself}
+\end{desc}
+
+\noindent
+\textbf{3sng\_fem\_pobj\_reflexive}~\attr{98}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{pobj}.
+
+	\textit{herself}
+	$\rightsquigarrow$
+	\textit{her},
+	\textit{her self},
+	\textit{themself},
+	\textit{she},
+	\textit{himeslf}
+\end{desc}
+
+\noindent
+\textbf{Third Plural}
+
+\noindent
+\textbf{3plu\_subj}~\attr{99}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag:
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{conj},
+	\texttt{appos},
+	\texttt{nmod},
+	\texttt{compound},
+	\texttt{attr}.
+
+	\textit{they}
+	$\rightsquigarrow$
+	\textit{them},
+	\textit{their},
+	\textit{he},
+	\textit{him},
+	\textit{she},
+	\textit{her},
+	\textit{themself},
+	\textit{themselves}
+\end{desc}
+
+\noindent
+\textbf{3plu\_pobj}~\attr{100}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{pobj}.
+
+	\textit{them}
+	$\rightsquigarrow$
+	\textit{they},
+	\textit{their},
+	\textit{him},
+	\textit{her}
+\end{desc}
+
+\noindent
+\textbf{3plu\_dobj}~\attr{101}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{dobj}.
+
+	\textit{them}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.05),
+	\textit{they}~(0.05),
+	\textit{her}~(0.05),
+	\textit{him}~(0.05),
+	\textit{for them}~(0.2),
+	\textit{to them}~(0.2),
+	\textit{on them}~(0.1),
+	\textit{in them}~(0.1),
+	\textit{at them}~(0.1),
+	\textit{of them}~(0.1)
+\end{desc}
+
+\noindent
+\textbf{3plu\_nsubj\_obj}~\attr{102}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag:
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{conj},
+	\texttt{appos},
+	\texttt{nmod},
+	\texttt{compound},
+	\texttt{attr}.
+
+	\textit{them}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{they},
+	\textit{their},
+	\textit{him},
+	\textit{her}
+\end{desc}
+
+\noindent
+\textbf{3plu\_dative}~\attr{103}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{dative}.
+
+	\textit{them}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.05),
+	\textit{they}~(0.05),
+	\textit{him}~(0.05),
+	\textit{her}~(0.05),
+	\textit{for them}~(0.3),
+	\textit{to them}~(0.35),
+	\textit{on them}~(0.05),
+	\textit{in them}~(0.05),
+	\textit{at them}~(0.05)
+\end{desc}
+
+\noindent
+\textbf{3plu\_poss}~\attr{104}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{theirs}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{they},
+	\textit{them},
+	\textit{their},
+	\textit{its},
+	\textit{his},
+	\textit{hers}
+\end{desc}
+
+\noindent
+\textbf{3plu\_poss\_det}~\attr{105}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{their}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{they},
+	\textit{them},
+	\textit{theirs},
+	\textit{a},
+	\textit{an},
+	\textit{the},
+	\textit{its},
+	\textit{his},
+	\textit{her}
+\end{desc}
+
+\noindent
+\textbf{3plu\_reflexive}~\attr{109}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag:
+	\texttt{dobj},
+	\texttt{conj},
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{npadvmod},
+	\texttt{dative},
+	\texttt{attr}.
+
+	\textit{themselves}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.2),
+	\textit{to themselves}~(0.1),
+	\textit{of themselves}~(0.1),
+	\textit{for themselves}~(0.1),
+	\textit{by themselves}~(0.1),
+	\textit{with themselves}~(0.1),
+	\textit{themself}~(0.01),
+	\textit{to themself}~(0.01),
+	\textit{of themself}~(0.01),
+	\textit{for themself}~(0.01),
+	\textit{by themself}~(0.01),
+	\textit{with themself}~(0.01),
+	\textit{himself}~(0.005),
+	\textit{to himself}~(0.005),
+	\textit{of himself}~(0.005),
+	\textit{for himself}~(0.005),
+	\textit{by himself}~(0.005),
+	\textit{with himself}~(0.005),
+	\textit{herself}~(0.005),
+	\textit{to herself}~(0.005),
+	\textit{of herself}~(0.005),
+	\textit{for herself}~(0.005),
+	\textit{by herself}~(0.005),
+	\textit{with herself}~(0.005),
+	\textit{they}~(0.06),
+	\textit{them}~(0.06),
+	\textit{their}~(0.06)
+\end{desc}
+
+\noindent
+\textbf{3plu\_appos\_reflexive}~\attr{110}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{appos}.
+
+	\textit{themselves}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{they},
+	\textit{them},
+	\textit{themself},
+	\textit{them selves},
+	\textit{for themselves},
+	\textit{by themselves},
+	\textit{herself},
+	\textit{himself}
+\end{desc}
+
+\noindent
+\textbf{3plu\_pobj\_reflexive}~\attr{111}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{pobj}.
+
+	\textit{themselves}
+	$\rightsquigarrow$
+	\textit{them},
+	\textit{them selves},
+	\textit{herself},
+	\textit{himself}
+\end{desc}
+
+\noindent
+\textbf{Third Neuter}
+
+\noindent
+\textbf{3sng\_neut\_reflexive}~\attr{106}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag:
+	\texttt{dobj},
+	\texttt{conj},
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{npadvmod},
+	\texttt{dative},
+	\texttt{attr}.
+
+	\textit{themself}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.2),
+	\textit{to themself}~(0.1),
+	\textit{of themself}~(0.1),
+	\textit{for themself}~(0.1),
+	\textit{by themself}~(0.1),
+	\textit{with themself}~(0.1),
+	\textit{themselves}~(0.01),
+	\textit{to themselves}~(0.01),
+	\textit{of themselves}~(0.01),
+	\textit{for themselves}~(0.01),
+	\textit{by themselves}~(0.01),
+	\textit{with themselves}~(0.01),
+	\textit{himself}~(0.005),
+	\textit{to himself}~(0.005),
+	\textit{of himself}~(0.005),
+	\textit{for himself}~(0.005),
+	\textit{by himself}~(0.005),
+	\textit{with himself}~(0.005),
+	\textit{herself}~(0.005),
+	\textit{to herself}~(0.005),
+	\textit{of herself}~(0.005),
+	\textit{for herself}~(0.005),
+	\textit{by herself}~(0.005),
+	\textit{with herself}~(0.005),
+	\textit{she}~(0.03),
+	\textit{her}~(0.03),
+	\textit{hers}~(0.03),
+	\textit{he}~(0.03),
+	\textit{him}~(0.03),
+	\textit{his}~(0.03)
+\end{desc}
+
+\noindent
+\textbf{3sng\_neut\_appos\_reflexive}~\attr{107}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{appos}.
+
+	\textit{themself}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{they},
+	\textit{them},
+	\textit{themselves},
+	\textit{them self},
+	\textit{for themself},
+	\textit{by themself},
+	\textit{herself},
+	\textit{himself}
+\end{desc}
+
+\noindent
+\textbf{3sng\_neut\_probj\_reflexive}~\attr{108}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{pobj}.
+
+	\textit{themself}
+	$\rightsquigarrow$
+	\textit{them},
+	\textit{them self},
+	\textit{herself},
+	\textit{himself}
+\end{desc}
+
+\noindent
+\textbf{Third Inanimate}
+
+\noindent
+\textbf{3sng\_inan\_subj}~\attr{112}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag:
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{conj},
+	\texttt{appos},
+	\texttt{nmod},
+	\texttt{compound},
+	\texttt{attr}.
+
+	\textit{it}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{its},
+	\textit{they},
+	\textit{he},
+	\textit{she},
+	\textit{this},
+	\textit{that},
+	\textit{which}
+\end{desc}
+
+\noindent
+\textbf{3sng\_inan\_pobj}~\attr{113}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{pobj}.
+
+	\textit{it}
+	$\rightsquigarrow$
+	\textit{its},
+	\textit{them},
+	\textit{him},
+	\textit{her},
+	\textit{this},
+	\textit{that},
+	\textit{which}
+\end{desc}
+
+\noindent
+\textbf{3sng\_inan\_dobj}~\attr{114}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{dobj}.
+
+	\textit{it}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{its},
+	\textit{them},
+	\textit{him},
+	\textit{her},
+	\textit{this},
+	\textit{that},
+	\textit{which},
+	\textit{for it},
+	\textit{to it},
+	\textit{on it},
+	\textit{in it},
+	\textit{at it},
+	\textit{of it}
+\end{desc}
+
+\noindent
+\textbf{3sng\_inan\_dative}~\attr{115}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{dative}.
+
+	\textit{it}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{its},
+	\textit{her},
+	\textit{him},
+	\textit{them},
+	\textit{for it},
+	\textit{to it},
+	\textit{on it},
+	\textit{in it},
+	\textit{at it}
+\end{desc}
+
+\noindent
+\textbf{3sng\_inan\_poss}~\attr{116}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{its}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{it},
+	\textit{theirs},
+	\textit{their},
+	\textit{his},
+	\textit{hers},
+	\textit{whose},
+	\textit{a},
+	\textit{an},
+	\textit{the}
+\end{desc}
+
+\noindent
+\textbf{3sng\_inan\_reflexive}~\attr{117}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag:
+	\texttt{dobj},
+	\texttt{conj},
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{npadvmod},
+	\texttt{dative},
+	\texttt{attr}.
+
+	\textit{itself}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.2),
+	\textit{to itself}~(0.1),
+	\textit{of itself}~(0.1),
+	\textit{for itself}~(0.1),
+	\textit{by itself}~(0.1),
+	\textit{with itself}~(0.1),
+	\textit{themself}~(0.005),
+	\textit{to themself}~(0.005),
+	\textit{of themself}~(0.005),
+	\textit{for themself}~(0.005),
+	\textit{by themself}~(0.005),
+	\textit{with themself}~(0.005),
+	\textit{themselves}~(0.005),
+	\textit{to themselves}~(0.005),
+	\textit{of themselves}~(0.005),
+	\textit{for themselves}~(0.005),
+	\textit{by themselves}~(0.005),
+	\textit{with themselves}~(0.005),
+	\textit{itselves}~(0.005),
+	\textit{to itselves}~(0.005),
+	\textit{of itselves}~(0.005),
+	\textit{for itselves}~(0.005),
+	\textit{by itselves}~(0.005),
+	\textit{with itselves}~(0.005),
+	\textit{himself}~(0.005),
+	\textit{to himself}~(0.005),
+	\textit{of himself}~(0.005),
+	\textit{for himself}~(0.005),
+	\textit{by himself}~(0.005),
+	\textit{with himself}~(0.005),
+	\textit{herself}~(0.005),
+	\textit{to herself}~(0.005),
+	\textit{of herself}~(0.005),
+	\textit{for herself}~(0.005),
+	\textit{by herself}~(0.005),
+	\textit{with herself}~(0.005),
+	\textit{she}~(0.025),
+	\textit{her}~(0.025),
+	\textit{hers}~(0.025),
+	\textit{he}~(0.025),
+	\textit{him}~(0.025),
+	\textit{his}~(0.025)
+\end{desc}
+
+\noindent
+\textbf{3sng\_inan\_appos\_reflexive}~\attr{118}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{appos}.
+
+	\textit{itself}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{it},
+	\textit{they},
+	\textit{them},
+	\textit{themselves},
+	\textit{it self},
+	\textit{for itself},
+	\textit{by itself},
+	\textit{themself},
+	\textit{herself},
+	\textit{himself}
+\end{desc}
+
+\noindent
+\textbf{3sng\_inan\_pobj\_reflexive}~\attr{119}{F}{0.03}{0.03}
+
+\begin{desc}
+	Dependency tag: \texttt{pobj}.
+
+	\textit{itself}
+	$\rightsquigarrow$
+	\textit{it},
+	\textit{it self},
+	\textit{herself},
+	\textit{himself}
+\end{desc}
+
+\paragraph{Determiner}\mbox{}
+
+These modules apply to word such that Universal part-of-speech tag is \texttt{DET}.
+
+\noindent
+\textbf{art}~\attr{135}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{a, an, the}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.2),
+	\textit{a}~(0.2),
+	\textit{an}~(0.2),
+	\textit{the}~(0.3),
+	\textit{this}~(0.025),
+	\textit{that}~(0.025),
+	\textit{these}~(0.025),
+	\textit{those}~(0.025)
+\end{desc}
+
+\noindent
+\textbf{demonstrative}~\attr{136}{F}{0.05}{0.05}
+
+\begin{desc}
+	Dependency tag: \texttt{det}.
+	
+	\textit{this, that, these, those}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{this},
+	\textit{that},
+	\textit{these},
+	\textit{those},
+	\textit{a},
+	\textit{an},
+	\textit{the}
+\end{desc}
+
+\noindent
+\textbf{demonstrative\_extra}~\attr{137}{F}{0.05}{0.05}
+
+\begin{desc}
+	Dependency tag:
+	\texttt{nsubj},
+	\texttt{nsubjpass},
+	\texttt{pobj},
+	\texttt{dobj},
+	\texttt{conj},
+	\texttt{appos},
+	\texttt{attr},
+	\texttt{advmod},
+	\texttt{ROOT},
+	\texttt{quantmod},
+	\texttt{npadmod}\\
+	Penn Treebank part-of-speech tag: \texttt{WDT}.
+
+	\textit{this},
+	\textit{that},
+	\textit{these},
+	\textit{those}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\textit{this},
+	\textit{that},
+	\textit{these},
+	\textit{those}
+\end{desc}
+
+\noindent
+\textbf{det\_no}~\attr{138}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{no}
+	$\rightsquigarrow$
+	\textit{not},
+	\textit{non},
+	\textit{any}
+\end{desc}
+
+\noindent
+\textbf{det\_any}~\attr{139}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{any}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.4),
+	\textit{some}~(0.1),
+	\textit{every}~(0.1),
+	\textit{a}~(0.1),
+	\textit{an}~(0.1),
+	\textit{all}~(0.1),
+	\textit{anything}~(0.1)
+\end{desc}
+
+\noindent
+\textbf{det\_some}~\attr{140}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{some}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.4),
+	\textit{a}~(0.05),
+	\textit{an}~(0.05),
+	\textit{the}~(0.05),
+	\textit{those}~(0.05),
+	\textit{these}~(0.05),
+	\textit{few}~(0.05),
+	\textit{little}~(0.05),
+	\textit{something}~(0.05),
+	\textit{somewhere}~(0.05),
+	\textit{much}~(0.05),
+	\textit{many}~(0.05),
+	\textit{so}~(0.05)
+\end{desc}
+
+\noindent
+\textbf{det\_all}~\attr{141}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{all}
+	$\rightsquigarrow$
+	\textit{both},
+	\textit{each},
+	\textit{every}
+\end{desc}
+
+\noindent
+\textbf{det\_both}~\attr{142}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{both}
+	$\rightsquigarrow$
+	\texttt{$\varepsilon$},
+	\textit{all},
+	\textit{each},
+	\textit{every}
+\end{desc}
+
+\noindent
+\textbf{det\_each}~\attr{143}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{each}
+	$\rightsquigarrow$
+	\texttt{$\varepsilon$},
+	\textit{all},
+	\textit{both},
+	\textit{every}
+\end{desc}
+
+\noindent
+\textbf{det\_every}~\attr{144}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{every}
+	$\rightsquigarrow$
+	\texttt{$\varepsilon$},
+	\textit{all},
+	\textit{both},
+	\textit{each}
+\end{desc}
+
+\noindent
+\textbf{ins\_det}~\attr{151}{F}{0.05}{0.05}
+
+\begin{desc}
+	This module inserts
+	\textit{a}~(0.3),
+	\textit{an}~(0.3),
+	\textit{the}~(0.3),
+	\textit{this}~(0.025),
+	\textit{that}~(0.025),
+	\textit{these}~(0.025),
+	\textit{those}~(0.025)
+	at the position which satisfies the conditions 1. and 2. below.
+	
+	\begin{itemize}
+		\setlength{\itemsep}{0em}
+		\setlength{\parskip}{0em}
+		\item[1.] Penn Treebank's part-of-speech tag of the left word is
+			\texttt{VB},
+			\texttt{VBD},
+			\texttt{VBG},
+			\texttt{VBN},
+			\texttt{VBP},
+			\texttt{VBZ},
+			\texttt{IN}
+		\item[2.] Penn Treebank's part-of-speech tag of the right word is
+			\texttt{NN},
+			\texttt{NNS},
+			\texttt{JJ},
+			\texttt{JJN},
+			\texttt{JJS}
+	\end{itemize}
+\end{desc}
+
+\paragraph{Adverbial Determiner}\mbox{}
+
+\noindent
+\textbf{so}~\attr{145}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{so}
+	$\rightsquigarrow$
+	\texttt{$\varepsilon$},
+	\textit{such},
+	\textit{too}
+\end{desc}
+
+\noindent
+\textbf{such}~\attr{146}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{such}
+	$\rightsquigarrow$
+	\texttt{$\varepsilon$},
+	\textit{so},
+	\textit{very}
+\end{desc}
+
+\noindent
+\textbf{another}~\attr{147}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{another}
+	$\rightsquigarrow$
+	\textit{other},
+	\textit{the other},
+	\textit{an other}
+\end{desc}
+
+\noindent
+\textbf{other}~\attr{148}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{other}
+	$\rightsquigarrow$
+	\textit{another},
+	\textit{others}
+\end{desc}
+
+\noindent
+\textbf{there}~\attr{149}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{there}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.5),
+	\textit{here}~(0.3),
+	\textit{they}~(0.1),
+	\textit{it}~(0.1)
+\end{desc}
+
+\noindent
+\textbf{here}~\attr{150}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{here}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.5),
+	\textit{there}~(0.3),
+	\textit{they}~(0.1),
+	\textit{it}~(0.1)
+\end{desc}
+
+\paragraph{Interrogative Word}\mbox{}
+
+\noindent
+\textbf{int\_how}~\attr{120}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{how}
+	$\rightsquigarrow$
+	\textit{what}~(0.6),
+	\textit{that}~(0.2),
+	\textit{who}~(0.1),
+	\textit{which}~(0.1)
+\end{desc}
+
+\noindent
+\textbf{int\_what}~\attr{121}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{what}
+	$\rightsquigarrow$
+	\textit{how}~(0.6),
+	\textit{that}~(0.2),
+	\textit{which}~(0.1),
+	\textit{who}~(0.1)
+\end{desc}
+
+\noindent
+\textbf{int\_whatever}~\attr{122}{F}{0.02}{0.02}
+
+\begin{desc}
+	\textit{whatever}
+	$\rightsquigarrow$
+	\textit{what}~(0.4),
+	\textit{however}~(0.2),
+	\textit{whichever}~(0.2),
+	\textit{whoever}~(0.2)
+\end{desc}
+
+\noindent
+\textbf{int\_who}~\attr{123}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{who}
+	$\rightsquigarrow$
+	\textit{that}~(0.3),
+	\textit{which}~(0.3),
+	\textit{what}~(0.2),
+	\textit{how}~(0.2)
+\end{desc}
+
+\noindent
+\textbf{int\_whoever}~\attr{124}{F}{0.02}{0.02}
+
+\begin{desc}
+	\textit{whoever}
+	$\rightsquigarrow$
+	\textit{whatever},
+	\textit{whichever},
+	\textit{however},
+	\textit{who}
+\end{desc}
+
+\noindent
+\textbf{int\_which}~\attr{125}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{which}
+	$\rightsquigarrow$
+	\textit{that}~(0.3),
+	\textit{who}~(0.3),
+	\textit{what}~(0.2),
+	\textit{how}~(0.2)
+\end{desc}
+
+\noindent
+\textbf{int\_whichever}~\attr{126}{F}{0.02}{0.02}
+
+\begin{desc}
+	\textit{whichever}
+	$\rightsquigarrow$
+	\textit{whatever},
+	\textit{whoever},
+	\textit{however},
+	\textit{which}
+\end{desc}
+
+\noindent
+\textbf{int\_that}~\attr{127}{F}{0.05}{0.05}
+
+\begin{desc}
+	Penn Treebank part-of-speech tag: \texttt{WDT}.
+
+	\textit{that}
+	$\rightsquigarrow$
+	\textit{which},
+	\textit{who},
+	\textit{how},
+	\textit{what}
+\end{desc}
+
+\noindent
+\textbf{int\_whose}~\attr{128}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{whose}
+	$\rightsquigarrow$
+	\textit{which},
+	\textit{who},
+	\textit{that},
+	\textit{its},
+	\textit{his},
+	\textit{her},
+	\textit{their}
+\end{desc}
+
+\noindent
+\textbf{int\_when}~\attr{129}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{when}
+	$\rightsquigarrow$
+	\textit{where},
+	\textit{until},
+	\textit{that},
+	\textit{what},
+	\textit{for},
+	\textit{in}
+\end{desc}
+
+\noindent
+\textbf{int\_whenever}~\attr{130}{F}{0.02}{0.02}
+
+\begin{desc}
+	\textit{whenever}
+	$\rightsquigarrow$
+	\textit{when},
+	\textit{whatever},
+	\textit{wherever},
+	\textit{whichever},
+	\textit{until},
+	\textit{that},
+	\textit{what},
+	\textit{for},
+	\textit{in}
+\end{desc}
+
+\noindent
+\textbf{int\_where}~\attr{131}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{where}
+	$\rightsquigarrow$
+	\textit{when},
+	\textit{wherein},
+	\textit{whereas},
+	\textit{whereby}
+\end{desc}
+
+\noindent
+\textbf{int\_wherever}~\attr{132}{F}{0.02}{0.02}
+
+\begin{desc}
+	\textit{wherever}
+	$\rightsquigarrow$
+	\textit{where},
+	\textit{whatever},
+	\textit{whenever},
+	\textit{whichever},
+	\textit{wherein},
+	\textit{whereas},
+	\textit{whereby}
+\end{desc}
+
+\noindent
+\textbf{int\_whither}~\attr{133}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{whither}
+	$\rightsquigarrow$
+	\textit{when},
+	\textit{whence},
+	\textit{that},
+	\textit{what}
+\end{desc}
+
+\noindent
+\textbf{int\_whence}~\attr{134}{F}{0.03}{0.03}
+
+\begin{desc}
+	\textit{whence}
+	$\rightsquigarrow$
+	\textit{when},
+	\textit{whither},
+	\textit{where},
+	\textit{what}
+\end{desc}
+
+\noindent
+\textbf{int\_why}~(\texttt{F})
+
+\begin{desc}
+	Not used in error generation.
+
+	\textit{why}
+	$\rightsquigarrow$
+	\textit{how},
+	\textit{when},
+	\textit{where},
+	\textit{that},
+	\textit{what}
+\end{desc}
+
+\noindent
+\textbf{int\_whether}~(\texttt{F})
+
+\begin{desc}
+	Not used in error generation.
+
+	\textit{whether}
+	$\rightsquigarrow$
+	\textit{which},
+	\textit{what},
+	\textit{that},
+	\textit{how},
+	\textit{whatever},
+	\textit{whatsoever},
+	\textit{if}
+\end{desc}
+
+\paragraph{Punctuation}\mbox{}
+
+\noindent
+\textbf{comma}~\attr{153}{W}{0.1}{0.1}
+
+\begin{desc}
+	\texttt{,}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.9),
+	\texttt{.}~(0.05),
+	\texttt{.{~}.}~(0.025),
+	\texttt{;}~(0.025)
+\end{desc}
+
+\noindent
+\textbf{ins\_left\_comma}~\attr{154}{W}{0.1}{0.1}
+
+\begin{desc}
+	This module inserts
+	\texttt{,}~(0.9),
+	\texttt{,{~},}~(0.025),
+	\texttt{.}~(0.025),
+	\texttt{;}~(0.025),
+	\texttt{:}~(0.025)
+	at the position satisfying the conditions 1. or 2. below.
+
+	\begin{itemize}
+		\setlength{\itemsep}{0em}
+		\setlength{\parskip}{0em}
+		\item[1.] 1a. and 1b.
+		\item[1a.] 1a1. or 1a2.
+		\item[1a1.] The Penn Treebank's part-of-speech tag of the left word is
+			\texttt{NN},
+			\texttt{NNS},
+			\texttt{NNP},
+			\texttt{NNPS}
+		\item[1a2.] 1a2a. and 1a2b.
+		\item[1a2a.] The Penn Treebank's part-of-speech tag of the left word is
+			\texttt{RB},
+			\texttt{RBR},
+			\texttt{RBS}
+		\item[1a2b.] The Universal part-of-sppech tag of the left word is \texttt{ADV}
+		\item[1b.] The Penn Treebank's part-of-speech tag of the right word is
+			\texttt{CC},
+			\texttt{DT},
+			\texttt{IN},
+			\texttt{WDT},
+			\texttt{WP},
+			\texttt{WP\$},
+			\texttt{WRB}
+		\item[2.] 2a. and 2b.
+		\item[2a.] The Penn Treebank's part-of-speech tag of the left word is
+			\texttt{NN},
+			\texttt{NNS},
+			\texttt{NNP},
+			\texttt{NNPS}
+		\item[2b.] 2b1. and 2b2.
+		\item[2b1.] The Penn Treebank's part-of-speech tag of the right word is
+			\texttt{RB},
+			\texttt{RBR},
+			\texttt{RBS}
+		\item[2b2.] The Universal part-of-speech tag of the right word is \texttt{ADV}
+	\end{itemize}
+\end{desc}
+
+\noindent
+\textbf{ins\_right\_comma}~\attr{155}{W}{0.1}{0.1}
+
+\begin{desc}
+	This module inserts
+	\texttt{,}~(0.9),
+	\texttt{,{~},}~(0.025),
+	\texttt{.}~(0.025),
+	\texttt{;}~(0.025),
+	\texttt{:}~(0.025)
+	at the position satisfies the conditions 1. and 2. below.
+
+	\begin{itemize}
+		\setlength{\itemsep}{0em}
+		\setlength{\parskip}{0em}
+		\item[1.] 1a. or 1b.
+		\item[1a.] The Penn Treebank's part-of-speech tag of the left word is
+			\texttt{NN},
+			\texttt{NNS},
+			\texttt{NNP},
+			\texttt{NNPS}
+		\item[1b.] 1b1. and 1b2.
+		\item[1b1.] The Penn Treebank's part-of-speech tag of the left word is
+			\texttt{RB},
+			\texttt{RBR},
+			\texttt{RBS}
+		\item[1b2.] The Universal part-of-speech tag of the left word is \texttt{ADV}
+		\item[2.] The Penn Treebank's part-of-speech tag of the right word is
+			\texttt{VB},
+			\texttt{VBD},
+			\texttt{VBG},
+			\texttt{VBN},
+			\texttt{VBP},
+			\texttt{VBZ}
+	\end{itemize}
+\end{desc}
+
+\noindent
+\textbf{period}~\attr{156}{W}{0.1}{0.1}
+
+\begin{desc}
+	\texttt{.}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.5),
+	\texttt{,}~(0.3),
+	\texttt{.{~}.}~(0.05),
+	\texttt{..}~(0.05),
+	\texttt{:}~(0.025),
+	\texttt{;}~(0.025),
+	\texttt{!}~(0.025),
+	\texttt{?}~(0.025)
+\end{desc}
+
+\noindent
+\textbf{hyphen}~\attr{157}{W}{0.05}{0.05}
+
+\begin{desc}
+	\texttt{-}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.85),
+	\texttt{-{}-}~(0.1),
+	\texttt{---}~(0.025),
+	\texttt{-~-}~(0.025)
+\end{desc}
+
+\noindent
+\textbf{two\_hyphen}~\attr{158}{W}{0.05}{0.05}
+
+\begin{desc}
+	\texttt{-{}-}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.2),
+	\texttt{-}~(0.7),
+	\texttt{---}~(0.05),
+	\texttt{-~-}~(0.05)
+\end{desc}
+
+\noindent
+\textbf{ins\_hyphen}~\attr{159}{W}{0.05}{0.05}
+
+\begin{desc}
+	This module inserts
+	\texttt{-}~(0.7),
+	\texttt{-{}-}~(0.25),
+	\texttt{---}~(0.025),
+	\texttt{-~-}~(0.025),
+	at the position satisfies the conditions 1., 2., 3., or 4. below.
+
+	\begin{itemize}
+		\setlength{\itemsep}{0em}
+		\setlength{\parskip}{0em}
+		\item[1.] 1a. and 1b.
+		\item[1a.] The Penn Treebank's part-of-speech tag of the left word is
+			\texttt{JJ},
+			\texttt{JJR},
+			\texttt{JJS},
+			\texttt{NN},
+			\texttt{NNS},
+			\texttt{RB},
+			\texttt{CD}
+		\item[1b.] The Penn Treebank's part-of-speech tag of the right word is
+			\texttt{JJ},
+			\texttt{JJR},
+			\texttt{JJS},
+			\texttt{NN},
+			\texttt{NNS},
+			\texttt{VBN},
+			\texttt{VBG}
+		\item[2.] 2a. and 2b.
+		\item[2a.] The Penn Treebank's part-of-speech tag of the left word is
+			\texttt{JJ},
+			\texttt{JJR},
+			\texttt{JJS},
+			\texttt{CD},
+			\texttt{NN},
+			\texttt{NNS}
+		\item[2b.] The Penn Treebank's part-of-speech tag of the right word is \texttt{RB}.
+		\item[3.] 3a. and 3b.
+		\item[3a.] The Penn Treebank's part-of-speech tag of the left word is \texttt{CD}.
+		\item[3b.] The Penn Treebank's part-of-speech tag of the right word is \texttt{CD}.
+		\item[4.] 4a. and 4b.
+		\item[4a.] The Penn Treebank's part-of-speech tag of the left word is
+			\texttt{VB},
+			\texttt{VBG},
+			\texttt{VBN},
+			\texttt{NN},
+			\texttt{NNS}
+		\item[4b.] The Penn Treebank's part-of-speech tag of the right word is \texttt{RP}.
+	\end{itemize}
+\end{desc}
+
+\noindent
+\textbf{quot}~\attr{160}{W}{0.05}{0.05}
+
+\begin{desc}
+	``token with Penn Treebank's part-of-speech tag \verb|``| or \verb|''|''
+	$\rightsquigarrow$
+	\textit{$\varepsilon$},
+	\texttt{'},
+	\texttt{"},
+	\verb|''|,
+	\verb|``|
+\end{desc}
+
+\noindent
+\textbf{colon}~\attr{161}{W}{0.05}{0.05}
+
+\begin{desc}
+	\texttt{:}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.4),
+	\texttt{.}~(0.2),
+	\texttt{,}~(0.2),
+	\texttt{;}~(0.2)
+\end{desc}
+
+\noindent
+\textbf{semicolon}~\attr{162}{W}{0.05}{0.05}
+
+\begin{desc}
+	\texttt{;}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.4),
+	\texttt{.}~(0.2),
+	\texttt{,}~(0.2),
+	\texttt{:}~(0.2)
+\end{desc}
+
+\noindent
+\textbf{hatena}~\attr{163}{W}{0.05}{0.05}
+
+\begin{desc}
+	\texttt{?}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.1),
+	\texttt{.}~(0.75),
+	\texttt{,}~(0.1),
+	\texttt{?}~(0.05)
+\end{desc}
+
+\noindent
+\textbf{bang}~\attr{164}{W}{0.05}{0.05}
+
+\begin{desc}
+	\texttt{!}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.4),
+	\texttt{.}~(0.2),
+	\texttt{,}~(0.2),
+	\texttt{?}~(0.2)
+\end{desc}
+
+\paragraph{Conjunction}\mbox{}
+
+\noindent
+\textbf{conj\_and}~\attr{168}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{and}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.95),
+	\textit{but}~(0.05)
+\end{desc}
+
+\noindent
+\textbf{conj\_but}~\attr{169}{F}{0.05}{0.05}
+
+\begin{desc}
+	\textit{but}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.9),
+	\textit{and}~(0.1)
+\end{desc}
+
+\paragraph{Adjective/Adverb/Noun/Verb}\mbox{}
+
+\noindent
+\textbf{to}~\attr{152}{I}{0.05}{0.05}
+
+\begin{desc}
+	Penn Treebank part-of-speech tag: \texttt{TO}
+
+	\textit{to}
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.6),
+	\textit{by}~(0.2),
+	\textit{for}~(0.2)
+\end{desc}
+
+\noindent
+\textbf{auxpass}~\attr{170}{I}{0.03}{0.03}
+
+\begin{desc}
+	``word with dependency tag \texttt{auxpass}''
+	$\rightsquigarrow$
+	\textit{$\varepsilon$}
+\end{desc}
+
+\noindent
+\textbf{confusion}~\attr{172}{L}{0.005}{0.005}
+
+\begin{desc}
+	$x$ $\rightsquigarrow$ ``word sampled from confusion set for $x$''
+
+	The confusion set is generated by replacing/deleting/adding suffix.
+
+confusion set $= \{w' | w \xrightarrow[\text{suffix}]{\text{replace}} w' \land w' \in \text{dictionary}\}$.
+suffix set = \{
+		\textit{ability},
+		\textit{able},
+		\textit{ably},
+		\textit{acy},
+		\textit{ade},
+		\textit{age},
+		\textit{al},
+		\textit{an},
+		\textit{ance},
+		\textit{ancy},
+		\textit{ant},
+		\textit{ar},
+		\textit{arch},
+		\textit{archy},
+		\textit{ard},
+		\textit{arian},
+		\textit{ary},
+		\textit{aster},
+		\textit{ate},
+		\textit{ation},
+		\textit{ative},
+		\textit{bility},
+		\textit{ble},
+		\textit{bly},
+		\textit{ce},
+		\textit{cide},
+		\textit{cle},
+		\textit{cracy},
+		\textit{craft},
+		\textit{crat},
+		\textit{cule},
+		\textit{cum},
+		\textit{cy},
+		\textit{d},
+		\textit{dom},
+		\textit{drome},
+		\textit{e},
+		\textit{ed},
+		\textit{ee},
+		\textit{eer},
+		\textit{en},
+		\textit{ence},
+		\textit{ency},
+		\textit{ent},
+		\textit{eous},
+		\textit{er},
+		\textit{erel},
+		\textit{ern},
+		\textit{ery},
+		\textit{es},
+		\textit{esce},
+		\textit{escent},
+		\textit{ese},
+		\textit{esque},
+		\textit{ess},
+		\textit{est},
+		\textit{eth},
+		\textit{ette},
+		\textit{ey},
+		\textit{fic},
+		\textit{fication},
+		\textit{fold},
+		\textit{form},
+		\textit{free},
+		\textit{ful},
+		\textit{fy},
+		\textit{gamy},
+		\textit{gate},
+		\textit{gen},
+		\textit{gon},
+		\textit{gram},
+		\textit{graph},
+		\textit{graphy},
+		\textit{handed},
+		\textit{hood},
+		\textit{i},
+		\textit{ial},
+		\textit{ian},
+		\textit{ibility},
+		\textit{ible},
+		\textit{ibly},
+		\textit{ic},
+		\textit{ical},
+		\textit{ically},
+		\textit{ice},
+		\textit{ician},
+		\textit{ics},
+		\textit{id},
+		\textit{ie},
+		\textit{ied},
+		\textit{ier},
+		\textit{ies},
+		\textit{iform},
+		\textit{ify},
+		\textit{ile},
+		\textit{ily},
+		\textit{in},
+		\textit{ine},
+		\textit{ing},
+		\textit{ion},
+		\textit{ior},
+		\textit{iour},
+		\textit{isation},
+		\textit{ise},
+		\textit{ish},
+		\textit{ism},
+		\textit{ist},
+		\textit{ite},
+		\textit{itis},
+		\textit{itive},
+		\textit{itude},
+		\textit{ity},
+		\textit{ium},
+		\textit{ive},
+		\textit{ization},
+		\textit{ize},
+		\textit{le},
+		\textit{let},
+		\textit{like},
+		\textit{ling},
+		\textit{log},
+		\textit{logical},
+		\textit{logist},
+		\textit{logue},
+		\textit{logy},
+		\textit{looking},
+		\textit{ly},
+		\textit{lysis},
+		\textit{man},
+		\textit{mancy},
+		\textit{mania},
+		\textit{manship},
+		\textit{men},
+		\textit{ment},
+		\textit{meter},
+		\textit{metry},
+		\textit{most},
+		\textit{n},
+		\textit{nce},
+		\textit{ness},
+		\textit{nik},
+		\textit{nomy},
+		\textit{ock},
+		\textit{oid},
+		\textit{ology},
+		\textit{onomy},
+		\textit{or},
+		\textit{ory},
+		\textit{ose},
+		\textit{osis},
+		\textit{osity},
+		\textit{our},
+		\textit{ous},
+		\textit{pathy},
+		\textit{person},
+		\textit{phil},
+		\textit{phile},
+		\textit{philia},
+		\textit{philiac},
+		\textit{phobe},
+		\textit{phobia},
+		\textit{phone},
+		\textit{phony},
+		\textit{ple},
+		\textit{proof},
+		\textit{red},
+		\textit{rel},
+		\textit{ry},
+		\textit{s},
+		\textit{scape},
+		\textit{scope},
+		\textit{se},
+		\textit{self},
+		\textit{selves},
+		\textit{ship},
+		\textit{some},
+		\textit{speak},
+		\textit{sphere},
+		\textit{ster},
+		\textit{t},
+		\textit{th},
+		\textit{tion},
+		\textit{tious},
+		\textit{tour},
+		\textit{tude},
+		\textit{ty},
+		\textit{ular},
+		\textit{ule},
+		\textit{ulous},
+		\textit{ure},
+		\textit{ward},
+		\textit{wards},
+		\textit{way},
+		\textit{ways},
+		\textit{wide},
+		\textit{wise},
+		\textit{worthy},
+		\textit{y},
+		\textit{yer}\}.
+\end{desc}
+
+\noindent
+\textbf{synonym}~\attr{171}{L}{0.05}{0.05}
+
+\begin{desc}
+	Penn Treebank part-of-speech tag:
+	\texttt{JJ},
+	\texttt{JJR},
+	\texttt{JJS},
+	\texttt{NN},
+	\texttt{NNS},
+	\texttt{RB},
+	\texttt{RBR},
+	\texttt{RBS},
+	\texttt{VB},
+	\texttt{VBD},
+	\texttt{VBG},
+	\texttt{VBN},
+	\texttt{VBP},
+	\texttt{VBZ}
+
+	$w$ $\rightsquigarrow$ ``its synonym sampled from WordNet''
+\end{desc}
+
+\noindent
+\textbf{adj\_infl}~\attr{173}{I}{0.05}{0.05}
+
+\begin{desc}
+	Penn Treebank part-of-speech tag:
+	\texttt{JJ},
+	\texttt{JJR},
+	\texttt{JJS}
+
+	$w$ $\rightsquigarrow$ ``perturb $w$ to other form (e.g. \texttt{JJ} $\to$ \texttt{JJR}) by \texttt{lemminflect}''
+\end{desc}
+
+\noindent
+\textbf{noun\_infl}~\attr{174}{I}{0.05}{0.05}
+
+\begin{desc}
+	Penn Treebank part-of-speecht tag:
+	\texttt{NN},
+	\texttt{NNS}
+
+	$w$ $\rightsquigarrow$ ``perturb $w$ to other form (e.g. \texttt{NN} $\to$ \texttt{NNS}) by \texttt{lemminflect}''
+\end{desc}
+
+\noindent
+\textbf{verb\_infl}~\attr{175}{I}{0.1}{0.1}
+
+\begin{desc}
+	Penn Treebank part-of-speecht tag:
+	\texttt{VB},
+	\texttt{VBD},
+	\texttt{VBG},
+	\texttt{VBN},
+	\texttt{VBP},
+	\texttt{VBZ}
+
+	$w$ $\rightsquigarrow$ ``perturb $w$ to other form (e.g. \texttt{VBG} $\to$ \texttt{VBN}) by \texttt{lemminflect}''
+
+	If the Penn Treebank's part-of-speech of the word is \texttt{VBG} or \texttt{VBN},
+	extra auxiliary word (have, has, ... or be, ...) is added for 20 \% of examples.
+\end{desc}
+
+\paragraph{Particle}\mbox{}
+
+This module applies to words such that its Penn Treebank's part-of-speech tag is \texttt{RP},
+and dependency tag is \texttt{prt}.
+
+\noindent
+\textbf{part}~\attr{176}{F}{0.05}{0.05}
+
+\begin{desc}
+	$x$ $\rightsquigarrow$
+	\textit{$\varepsilon$}~(0.65),
+	\textit{out},
+	\textit{up},
+	\textit{down},
+	\textit{about},
+	\textit{on},
+	\textit{in},
+	\textit{off}~(0.05)
+\end{desc}
+
+\paragraph{Contraction}\mbox{}
+
+\noindent
+\textbf{contr}~\attr{177}{W}{0.05}{0.05}
+
+\begin{desc}
+	This module removes \textit{'} in contraction word (e.g., \texttt{'m}).
+\end{desc}
+
+\paragraph{Deletion}\mbox{}
+
+\noindent
+\textbf{del}~\attr{178}{X}{0.01}{0.01}
+
+\begin{desc}
+	This module deletes words in deletion set.
+
+	deletion set = \{
+		\texttt{!},
+		\texttt{"},
+		\texttt{\#},
+		\texttt{\$},
+		\texttt{\%},
+		\texttt{\&},
+		\texttt{'},
+		\textit{'re},
+		\textit{'s},
+		\texttt{(\if0)\fi},
+		\texttt{)},
+		\texttt{*},
+		\texttt{+},
+		\texttt{,},
+		\texttt{-},
+		\texttt{.},
+		\texttt{/},
+		\texttt{:},
+		\texttt{;},
+		\texttt{<},
+		\texttt{=},
+		\texttt{>},
+		\texttt{?},
+		\texttt{@},
+		\texttt{[\if0]\fi},
+		\texttt{\textbackslash},
+		\texttt{]},
+		\texttt{\^{}},
+		\texttt{\_},
+		\texttt{`},
+		\textit{a},
+		\textit{about},
+		\textit{after},
+		\textit{against},
+		\textit{am},
+		\textit{an},
+		\textit{and},
+		\textit{are},
+		\textit{around},
+		\textit{as},
+		\textit{at},
+		\textit{away},
+		\textit{back},
+		\textit{back},
+		\textit{be},
+		\textit{because},
+		\textit{been},
+		\textit{before},
+		\textit{being},
+		\textit{but},
+		\textit{by},
+		\textit{can},
+		\textit{could},
+		\textit{dare},
+		\textit{did},
+		\textit{do},
+		\textit{does},
+		\textit{down},
+		\textit{during},
+		\textit{for},
+		\textit{from},
+		\textit{had},
+		\textit{has},
+		\textit{have},
+		\textit{how},
+		\textit{if},
+		\textit{in},
+		\textit{into},
+		\textit{is},
+		\textit{it},
+		\textit{just},
+		\textit{like},
+		\textit{may},
+		\textit{might},
+		\textit{of},
+		\textit{off},
+		\textit{on},
+		\textit{or},
+		\textit{ought},
+		\textit{out},
+		\textit{over},
+		\textit{shall},
+		\textit{should},
+		\textit{since},
+		\textit{than},
+		\textit{that},
+		\textit{the},
+		\textit{them},
+		\textit{there},
+		\textit{these},
+		\textit{they},
+		\textit{this},
+		\textit{those},
+		\textit{through},
+		\textit{to},
+		\textit{under},
+		\textit{up},
+		\textit{was},
+		\textit{were},
+		\textit{what},
+		\textit{when},
+		\textit{where},
+		\textit{whether},
+		\textit{which},
+		\textit{while},
+		\textit{who},
+		\textit{whom},
+		\textit{whose},
+		\textit{why},
+		\textit{will},
+		\textit{with},
+		\textit{would},
+		\texttt{\{},
+		\texttt{\}},
+		\texttt{\textasciitilde}\}
+\end{desc}
+
+\paragraph{Writing System}\mbox{}
+
+\noindent
+\textbf{ent}~\attr{165}{W}{0.03}{0.03}
+
+\begin{desc}
+	This module applies to named entities detecded by SpaCy's IOB tags.
+	This module conevrts the first letter of the words to lowercase (e.g., Long Island $\to$ long island).
+	80\% of the perturbating named entities are fully uncased.
+	20\% of them are partially uncased.
+\end{desc}
+
+\noindent
+\textbf{title}~\attr{166}{W}{0.01}{0.01}
+
+\begin{desc}
+	This module converts the first letter of the words to uppercase.
+	This module applies to the words such that lowercase, non-digit, and composesd of latin.
+\end{desc}
+
+\noindent
+\textbf{uncase}~\attr{167}{W}{0.03}{0.03}
+
+\begin{desc}
+	This module converts the first letter of the words to lowercase.
+	This module applies to the words such that non-lowercase, non-digit, and composesd of latin.
+\end{desc}
+
+\noindent
+\textbf{del\_orth}~\attr{180}{W}{0.03}{0.03}
+
+\begin{desc}
+	This module removes white space between 2 words.
+\end{desc}
+
+\noindent
+\textbf{ins\_orth}~\attr{181}{W}{0.03}{0.03}
+
+\begin{desc}
+	This module inserts white space in word and splits the word.
+	This module splits words based on dictionaries, so ``football'' is more likely to be split into ``foot ball'' than ``foo tball.''
+	This rule splits 80\% of words so that both separated words are in dictionary.
+	The rest 20\% words are separated randomly.
+\end{desc}
+
+\paragraph{Spell}\mbox{}
+
+I classified spelling error into Writing System Error,
+although it is not Writing System Error.
+I wonder if there may be better classification.
+
+\noindent
+\textbf{spell}~\attr{179}{W}{0.05}{0.05}
+
+\begin{desc}
+	This module perturbs word spell in the following manner.
+	\begin{itemize}
+		\setlength{\itemsep}{0em}
+		\setlength{\parskip}{0em}
+		\item[1.] Sample the number of error generating operation from geometric distribution ($p=0.9$).
+		\item[2.] Choose operation from delete, swap, insert, or replace with equal probability.
+		\item[] \hspace{0em} Delete: delete 1 character.
+		\item[] \hspace{0em} Swap: swap consequtive 2 characters.
+		\item[] \hspace{0em} Insert: insert character sampled from a learned distribution.
+		\item[] \hspace{0em} Replace: replace character to another character sampled from learned distribution.
+	\end{itemize}
+	The learned distribution is made by a feed-forward neural network.
+\end{desc}
+
+\begin{figure}[h]
+	\centering
+	\begin{tikzpicture}[>=latex,font=\sffamily,scale=0.8,transform shape]
+		\node at (0.0, 0) {w};
+		\node at (0.5, 0) {r};
+		\node at (1.0, 0) {o};
+		\node at (1.5, 0) {n};
+		\node at (2.0, 0) {g};
+		\draw[->] (0.0, -0.2) to (0.25, -0.65);
+		\draw[->] (0.5, -0.2) to (0.75, -0.65);
+		\draw[->] (1.5, -0.2) to (1.25, -0.65);
+		\draw[->] (2.0, -0.2) to (1.75, -0.65);
+		\node (x) [rectangle, text width=55pt, text height=12pt, rounded corners=0.5mm, draw=blue, fill=blue!30] at (1.0, -1.0) {};
+		\node at (1.0, -1.0) {Dist.};
+		\draw[->] (1.0, -1.35) to (1.0, -1.8);
+		\node [anchor=south, rectangle, text width=0pt, text height=25pt,draw=red, fill=red!30] at (0.6, -3.0) {};
+		\node [anchor=south, rectangle, text width=0pt, text height=15pt,draw=red, fill=red!30] at (0.9, -3.0) {};
+		\node [anchor=south, rectangle, text width=0pt, text height=5pt,draw=red, fill=red!30] at (1.2, -3.0) {};
+		\node at (0.6, -3.3) {\small o};
+		\node at (0.9, -3.3) {\small i};
+		\node at (1.2, -3.3) {\small a};
+		\node at (1.7, -2.8) {$\cdots$};
+		\draw[->] (2.0, -2.8) to (3.5, -2.8);
+		\node at (2.75, -3.2) {\scriptsize remove original};
+		\node [anchor=south, rectangle, text width=0pt, text height=15pt,draw=red, fill=red!30] at (4.0, -3.0) {};
+		\node [anchor=south, rectangle, text width=0pt, text height=5pt,draw=red, fill=red!30] at (4.3, -3.0) {};
+		\node at (4.0, -3.3) {\small i};
+		\node at (4.3, -3.3) {\small a};
+		\node at (4.8, -2.8) {$\cdots$};
+		\draw[->] (5.1, -2.8) to (7.1, -2.8);
+		\node[align=left] at (6.1, -3.1) {\scriptsize sample according};
+		\node[align=left] at (6.1, -3.3) {\scriptsize to distribution};
+		\node at (7.5, -2.8) {i};
+	\end{tikzpicture}
+	\caption{Spelling Error Generation(e.g., replace)}
+\end{figure}
+
+\paragraph{Word Order}\mbox{}
+
+The distance to move word and phrase is sampled from a normal distribution.
+Therefore, the position after the movement is \texttt{float}, not \texttt{int}.
+Finnaly, the word order is determined by \texttt{argsort} on the positions represented by \texttt{float}.
+
+\noindent
+\textbf{an\_wo}~\attr{182}{O}{0.03}{0.03}
+
+\begin{desc}
+	This rule shuffles the order of the consecutive adjectives
+	(word whose Penn Treebank's part-of-speech tag is \texttt{JJ}, \texttt{JJR}, \texttt{JJS}, or \texttt{CD}),
+	for example `\textit{big fat}'.
+	This rule can shuffle the order of the concatination of consecutive adjectives and the following consecutive nouns
+	(word whose Penn Treebank's part-of-speech tag is \texttt{NN}, or \texttt{NNS}),
+	for example `\textit{big fat cat}'.
+	Whether the rule shuffle the order including nouns is determined by parameter \texttt{ratio} (default \texttt{ratio} is $0.1$).
+\end{desc}
+
+\noindent
+\textbf{of\_wo}~\attr{183}{O}{0.02}{0.02}
+
+\begin{desc}
+	\textit{A of B}
+	$\rightsquigarrow$
+	\textit{B of A}.
+	\textit{A}, \textit{B} are both
+	(\texttt{ADJ}\texttt{|}\texttt{DET}\texttt{|}\texttt{NUM})${}^*$ \texttt{NOUN}${}^+$.
+\end{desc}
+%
+\noindent
+\textbf{pp\_wo}~\attr{184}{O}{0.02}{0.02}
+
+\begin{desc}
+	This module moves prepositional phrases.
+	We extract phrases which satisfies this rule:
+	(\texttt{IN}\texttt{\&}\texttt{ADP}\texttt{\&}\texttt{prep}\texttt{\&}$\sim$\textit{of})~((\texttt{ADV}\texttt{|}\texttt{ADJ}\texttt{|}\texttt{DET}\texttt{|}\texttt{NUM}\\\texttt{|}\texttt{NOUN}\texttt{|}\texttt{PRON}\texttt{|}\texttt{PROPN})\texttt{\&}$\sim$\texttt{WDT})${}^+$
+\end{desc}
+
+\noindent
+\textbf{adv\_wo}~\attr{185}{O}{0.03}{0.03}
+
+\begin{desc}
+	This module moves adverb (\texttt{ADV}).
+	The distance to move words is sampled from a normal distribution ($\mu=1.0, \sigma=1.5$).
+\end{desc}
+
+\noindent
+\textbf{wh\_wo}~\attr{186}{O}{0.02}{0.02}
+
+\begin{desc}
+	This module moves
+	\textit{how},
+	\textit{what},
+	\textit{who},
+	\textit{which},
+	\textit{whose},
+	\textit{when},
+	\textit{where},
+	\textit{whither},
+	\textit{whence},
+	\textit{why},
+	\textit{whether}.
+	The distance to move the words is sampled from a normal distribution ($\mu=1.5, \sigma=1.0$).
+\end{desc}
+
+\noindent
+\textbf{norm\_wo}~(187, \texttt{O})
+
+\begin{desc}
+	This module applies all the words in sentence.
+	This module moves all words in sentence.
+	The distances to move words are sampled from a normal distribution ($\mu=0.0, \sigma=0.5 \times x$; $x$ is sampled from a beta distribution for each sentence).
+\end{desc}
+
+\paragraph{Mask Token Prediction}\mbox{}
+
+\noindent
+\textbf{mask}~\attr{188}{X}{0.15}{0.15}
+
+\begin{desc}
+	This module replaces tokens with black mask token (\texttt{0x25A8}) and characters with white mask token (\texttt{0x25A1}).
+	80\% of the perturbating tokens are entirely masked by black mask token (e.g. \textit{word} $\rightsquigarrow$ \texttt{<mask>}).
+	20\% of them are partially masked by white mask token (e.g. \textit{word} $\rightsquigarrow$ \textit{w}\texttt{<mask>}\textit{d}).
+	The number of perturbations for a word is sampled from a geometric distribution ($p=0.8$).
+\end{desc}
+
+\end{document}
